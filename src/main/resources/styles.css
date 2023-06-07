@@ -1,0 +1,46 @@
+/* styles.css */
+
+.json-property {
+    -fx-fill: #733473;
+}
+
+.json-keyword {
+    -fx-fill: #0033B3;
+}
+
+.json-number {
+    -fx-fill: #1750EB;
+}
+
+.json-string {
+    -fx-fill: #067D17;
+}
+
+
+.code-area {
+    -fx-background-color: -fx-shadow-highlight-color, -fx-text-box-border, -fx-control-inner-background;
+    -fx-background-insets: 0, 1, 2;
+    -fx-background-radius: 3, 2, 2;
+    -fx-padding: 1;
+    -fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);
+}
+
+.code-area > .scroll-pane {
+    -fx-background-color: transparent;
+}
+
+.code-area .content {
+    -fx-padding: 3 5 3 5;
+    -fx-cursor: text;
+}
+
+.code-area:focused {
+    -fx-background-color: -fx-focus-color, -fx-text-box-border, -fx-control-inner-background;
+    -fx-background-insets: -0.4, 1, 2;
+    -fx-background-radius: 3.4, 2, 2;
+    -fx-prompt-text-fill: transparent;
+}
+
+.code-area:disabled {
+    -fx-opacity: -fx-disabled-opacity;
+}
