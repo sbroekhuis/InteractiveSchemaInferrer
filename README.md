@@ -6,3 +6,7 @@ It adds features that asks the user for clarification.
 # About
 
 This project is a master thesis from the University of Twente.
+
+# ToDo
+- Implement a Test Framework (Perhaps TestFX)
+- Logging System
