@@ -7,6 +7,14 @@ import java.util.concurrent.CancellationException
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
 
+/**
+ * # Strategy
+ * A strategy is a technique or rule that detects a possible change in a JSON schema that requires a user input.
+ *
+ * We require a user input because we cannot always be certain the change in the schema is valid.
+ * It could be a coincidence or the user thinks in the future it will change.
+ *
+ */
 abstract class Strategy {
 
     /**
@@ -32,7 +40,10 @@ abstract class Strategy {
 
 }
 
-
+/**
+ * StrategyFragment is a [Fragment] that replaces the [InferringView] with a question for the user.
+ * When done, we return ourselves
+ */
 abstract class StrategyFragment : Fragment() {
     private val cF = CompletableFuture<StrategyFragment>()
 

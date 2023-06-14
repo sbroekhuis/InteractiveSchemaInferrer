@@ -40,7 +40,6 @@ class ConstDetection : Strategy(), GenericSchemaFeature {
 
         val value = distinct.first()
         var result = false
-        println(input.schema)
 
 
         this.askUserWith("Inferring - Possible Constant Found") {
@@ -85,7 +84,7 @@ class ConstDetection : Strategy(), GenericSchemaFeature {
 
         // It is a const
         val newObject: ObjectNode = newObject()
-        newObject.set<ObjectNode>(Const.CONST, value)
+        newObject.set<ObjectNode>(Const.Field.CONST, value)
         // Remove the existing type from the schema.
         input.schema.remove("type")
         return newObject
