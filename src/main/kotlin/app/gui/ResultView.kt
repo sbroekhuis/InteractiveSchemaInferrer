@@ -45,11 +45,6 @@ class ResultView : View("Results") {
                         isEditable = false
 
                         styleClass.add("text-area")
-                    }.apply {
-                        val im: InputMap<KeyEvent> = InputMap.consume(
-                            EventPattern.keyPressed(KeyCode.TAB)
-                        ) { this.replaceSelection("  ") }
-                        Nodes.addInputMap(this, im)
                     }
 
                     anchorpane {
