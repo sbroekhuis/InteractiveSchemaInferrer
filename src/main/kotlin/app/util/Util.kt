@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.fasterxml.jackson.databind.node.ArrayNode
+import com.fasterxml.jackson.databind.node.JsonNodeFactory
+import com.fasterxml.jackson.databind.node.ObjectNode
 import javafx.collections.ObservableList
 import javafx.event.EventTarget
 import org.fxmisc.richtext.CodeArea
@@ -103,6 +105,11 @@ fun highlight(json: String): StyleSpans<Collection<String>>? {
     }
     return spansBuilder.create()
 }
+
+fun newObject(): ObjectNode {
+    return JsonNodeFactory.instance.objectNode()
+}
+
 
 private fun jsonTokenToClassName(jsonToken: JsonToken): String = when (jsonToken) {
     JsonToken.FIELD_NAME -> "json-property"

@@ -3,7 +3,7 @@ package app
 import app.gui.ConfigurationView
 import app.gui.InferringView
 import app.gui.ResultView
-import app.strategy.ExampleStrategy
+import app.strategy.ConstDetection
 import app.util.InferConfigModel
 import app.util.convertFilesToJson
 import com.fasterxml.jackson.databind.JsonNode
@@ -37,7 +37,7 @@ class InteractiveInferenceController : Controller() {
                 .setSpecVersion(inferConfig.schemaVersion.value)
                 .setRequiredPolicy(RequiredPolicies.commonFields())
                 // STRATEGIES:
-                .addGenericSchemaFeatures(ExampleStrategy())
+                .addGenericSchemaFeatures(ConstDetection())
                 //
                 .build()
 
