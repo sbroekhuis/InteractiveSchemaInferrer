@@ -3,7 +3,7 @@ package app.gui
 import app.InteractiveInferenceController
 import app.util.codearea
 import app.util.fonticon
-import app.util.highlight
+import app.util.highlightJSON
 import app.util.richChanges
 import com.fasterxml.jackson.databind.JsonNode
 import javafx.application.Platform
@@ -11,13 +11,8 @@ import javafx.geometry.Orientation
 import javafx.geometry.Pos
 import javafx.scene.control.ButtonBar
 import javafx.scene.input.Clipboard
-import javafx.scene.input.KeyCode
-import javafx.scene.input.KeyEvent
 import javafx.scene.layout.AnchorPane
 import javafx.scene.layout.Priority
-import org.fxmisc.wellbehaved.event.EventPattern
-import org.fxmisc.wellbehaved.event.InputMap
-import org.fxmisc.wellbehaved.event.Nodes
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid
 import tornadofx.*
 
@@ -39,7 +34,7 @@ class ResultView : View("Results") {
                     hgrow = Priority.ALWAYS
                     codearea(text = schema.toPrettyString()) {
                         richChanges {
-                            setStyleSpans(0, highlight(this@codearea.text))
+                            setStyleSpans(0, highlightJSON(this@codearea.text))
                         }
                         fitToParentHeight()
                         isEditable = false
