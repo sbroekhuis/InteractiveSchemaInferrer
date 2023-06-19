@@ -2,7 +2,7 @@ package app.strategy
 
 import app.Const
 import app.util.codearea
-import app.util.highlight
+import app.util.highlightJSON
 import app.util.newObject
 import app.util.richChanges
 import com.fasterxml.jackson.databind.JsonNode
@@ -54,7 +54,7 @@ class ConstDetection : Strategy(), GenericSchemaFeature {
                         labelPosition = Orientation.VERTICAL
                         codearea(text = value.toPrettyString()) {
                             richChanges {
-                                setStyleSpans(0, highlight(this@codearea.text))
+                                setStyleSpans(0, highlightJSON(this@codearea.text))
                             }
                             fitToParentHeight()
                             isEditable = false

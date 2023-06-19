@@ -1,6 +1,7 @@
 package app.util
 
 import com.fasterxml.jackson.core.JsonFactory
+import com.fasterxml.jackson.core.JsonParseException
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.core.JsonToken
 import com.fasterxml.jackson.databind.JsonNode
@@ -22,6 +23,8 @@ import tornadofx.*
 import java.io.File
 import java.io.IOException
 import java.util.*
+
+
 @Suppress("SpellCheckingInspection")
 fun EventTarget.fonticon(iconCode: Ikon? = null, op: FontIcon.() -> Unit = {}) = FontIcon().attachTo(this, op) {
     if (iconCode != null) it.iconCode = iconCode
@@ -67,12 +70,12 @@ internal fun convertFilesToJson(files: List<File>, isArrayExamples: Boolean): Ob
 /**
  * Highlighter for JSON strings.
  */
-fun highlight(json: String): StyleSpans<Collection<String>>? {
+fun highlightJSON(json: String): StyleSpans<Collection<String>>? {
     val parser: JsonParser = JsonFactory().createParser(json)
     val spansBuilder = StyleSpansBuilder<Collection<String>>()
 
+    var lastPos = 0
     try {
-        var lastPos = 0
         while (true) {
             //Break check in case the isClosed does not work...
             val jsonToken: JsonToken = parser.nextToken() ?: break
@@ -96,14 +99,29 @@ fun highlight(json: String): StyleSpans<Collection<String>>? {
                 spansBuilder.add(Collections.singleton(className), length)
             }
         }
-        if (lastPos == 0) {
-            spansBuilder.add(Collections.emptyList(), json.length)
-        }
+
     } catch (e: IOException) {
         // Ignoring JSON parsing exception in the context of
         // syntax highlighting
     }
+    if (lastPos == 0) {
+        spansBuilder.add(Collections.emptyList(), json.length)
+    }
     return spansBuilder.create()
+}
+
+fun isValidJSON(json: String?): Boolean {
+    try {
+        val parser = JsonFactory().createParser(json)
+        while (parser.nextToken() != null) {
+            continue
+        }
+    } catch (jpe: JsonParseException) {
+        return false
+    } catch (ioe: IOException) {
+        return false
+    }
+    return true
 }
 
 fun newObject(): ObjectNode {
