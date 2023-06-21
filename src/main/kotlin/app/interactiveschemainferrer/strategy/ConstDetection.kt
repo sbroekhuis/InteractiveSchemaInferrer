@@ -13,6 +13,7 @@ import com.saasquatch.jsonschemainferrer.SpecVersion
 import javafx.geometry.Orientation
 import javafx.scene.control.ButtonBar
 import tornadofx.*
+import java.util.logging.Logger
 
 /**
  * # Strategy: ConstDetection
@@ -24,9 +25,13 @@ import tornadofx.*
  *
  */
 class ConstDetection : GenericSchemaFeature {
+    companion object {
+        val logger: Logger by lazy { Logger.getLogger(ConstDetection::class.qualifiedName) }
+    }
     override fun getFeatureResult(input: GenericSchemaFeatureInput): ObjectNode? {
         if (input.specVersion < SpecVersion.DRAFT_06) {
             // Const exist only since draft 6
+            logger.fine("Const not available in version: ${input.specVersion}")
             return null
         }
 
@@ -36,9 +41,13 @@ class ConstDetection : GenericSchemaFeature {
         val distinctSize = distinct.size
 
         // Return if not applicable
-        if (distinctSize != 1) return null
+        if (distinctSize != 1) {
+            logger.fine("Not exactly one distinct value. Thus, not a constant.")
+            return null
+        }
 
         val value = distinct.first()
+        logger.fine("Possible constant found: $value")
         var result = false
 
 
@@ -79,14 +88,17 @@ class ConstDetection : GenericSchemaFeature {
         }
         if (!result) {
             // It was not a constant.
+            logger.fine("User declined potential constant.")
             return null
         }
+
 
         // It is a const
         val newObject: ObjectNode = newObject()
         newObject.set<ObjectNode>(Const.Field.CONST, value)
         // Remove the existing type from the schema.
         input.schema.remove("type")
+        logger.fine("User accepted const for ${input.path} : $value")
         return newObject
     }
 }

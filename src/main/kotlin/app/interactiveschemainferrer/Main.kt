@@ -45,12 +45,14 @@ class InteractiveInferenceController : Controller() {
                 // STRATEGIES:
                 .addEnumExtractors(EnumDetection())
                 .addGenericSchemaFeatures(ConstDetection())
-//                .addGenericSchemaFeatures(DefaultStrategy())
+                .addGenericSchemaFeatures(DefaultStrategy())
                 .setDefaultPolicy(DefaultStrategy())
                 //
                 .build()
 
+            log.info("Starting Inferring Schema")
             resultSchema = schemaInferrer.inferForSamples(jsonFiles)
+            log.info("Finishing Inferring Schema")
         }.success {
             runLater {
                 find<InferringView>().replaceWith<ResultView>(

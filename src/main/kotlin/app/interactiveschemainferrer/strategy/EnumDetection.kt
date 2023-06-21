@@ -14,6 +14,7 @@ import javafx.scene.layout.Priority
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid
 import tornadofx.*
 import java.util.*
+import java.util.logging.Logger
 
 /**
  * # Strategy: EnumDetection
@@ -27,6 +28,8 @@ import java.util.*
 class EnumDetection : EnumExtractor {
 
     companion object {
+        val logger: Logger by lazy { Logger.getLogger(EnumDetection::class.qualifiedName) }
+
         /** Threshold to specify when the difference between distinct and total is substantial */
         var THRESHOLD: Float = 0.1f
     }
@@ -47,20 +50,25 @@ class EnumDetection : EnumExtractor {
         if (distinctSize == 1) {
             // If distinctSize is 1, then this is not an enum but a const
             // See ConstDetection
+            logger.fine("Distinct Size 1, nothing to infer")
             return Collections.emptySet()
         }
 
         val fl = distinctSize.div(totalSize)
-        if (fl > THRESHOLD) return Collections.emptySet()
+        if (fl > THRESHOLD) {
+            logger.fine("Distinct size / total size ($fl) = lower than threshold$THRESHOLD no potential enum found")
+            return Collections.emptySet()
+        }
+        logger.fine("Potential enum found: $distinct")
 
+        val validator = ValidationContext()
 
         val answerList = observableListOf(distinct.map {
-            newCodeArea(it.toPrettyString())
+            newCodeArea(it.toPrettyString(), validator)
         })
 
         askUserWith("Inferring - Possible Enum Found") {
             form {
-                val validator = ValidationContext()
 
                 fieldset {
                     labelPosition = Orientation.VERTICAL
@@ -128,12 +136,16 @@ class EnumDetection : EnumExtractor {
                 }
             }
         }
-        if (answerList.isEmpty()) return Collections.emptySet()
+        if (answerList.isEmpty()) {
+            // TODO: If the user deletes all values in the GUI.
+            logger.fine("User declined potential enum.")
+            return Collections.emptySet()
+        }
 
         val answers = answerList.map {
             ObjectMapper().readTree(it.text)
         }.distinct().toMutableList()
-
+        logger.fine("User accepted enum for ${input.path} : [$answers]")
         return Collections.singleton(answers)
     }
 }

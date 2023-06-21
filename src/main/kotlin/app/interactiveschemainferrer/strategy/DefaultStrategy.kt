@@ -34,6 +34,7 @@ class DefaultStrategy : DefaultPolicy {
         internal fun <T : Any> Collection<T>.outliers(): Map<T, Int> {
 
             // TODO: Design choice write down 1.5IQR or 3SigmaRule
+            // Reason for 3sigmarule is that it is less sensitive, resulting in a better user experience.
             val frequencies: Map<T, Int> = this.frequencies()
             val stats = DescriptiveStatistics()
 
@@ -42,13 +43,7 @@ class DefaultStrategy : DefaultPolicy {
             val mean = stats.mean
             val standardDeviation = stats.standardDeviation
 
-
-//            val q1 = stats.getPercentile(25.0)
-//            val q3 = stats.getPercentile(75.0)
-//            val iqr = q3 - q1
-
             val upperThreshold = mean + (3 * standardDeviation)
-//            val upperThreshold = q3 + 1.5 * iqr
             if (logger.isLoggable(Level.FINER)) {
                 val freqString = frequencies.toList().sortedByDescending { pair -> pair.second }.toString()
                 logger.finer("Outlier info: standardDeviation:$standardDeviation mean:$mean upperThreshold:$upperThreshold size:${frequencies.size}")
@@ -64,7 +59,6 @@ class DefaultStrategy : DefaultPolicy {
      * Get the default based on the count of distinct values in the samples using [outliers] function.
      */
     override fun getDefault(input: GenericSchemaFeatureInput): JsonNode? {
-        logger.info("Entering: ${input.path}")
         val outliers = input.samples.outliers()
         if (outliers.isEmpty()) {
             logger.fine("Samples empty, nothing to infer")
