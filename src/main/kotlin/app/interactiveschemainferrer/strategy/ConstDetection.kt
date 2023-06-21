@@ -1,10 +1,10 @@
-package app.strategy
+package app.interactiveschemainferrer.strategy
 
-import app.Const
-import app.util.codearea
-import app.util.highlightJSON
-import app.util.newObject
-import app.util.richChanges
+import app.interactiveschemainferrer.Const
+import app.interactiveschemainferrer.util.codearea
+import app.interactiveschemainferrer.util.highlightJSON
+import app.interactiveschemainferrer.util.newObject
+import app.interactiveschemainferrer.util.richChanges
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.saasquatch.jsonschemainferrer.GenericSchemaFeature
@@ -23,7 +23,7 @@ import tornadofx.*
  * samples there is only one distinct sample. We then ask if the value is a const.
  *
  */
-class ConstDetection : Strategy(), GenericSchemaFeature {
+class ConstDetection : GenericSchemaFeature {
     override fun getFeatureResult(input: GenericSchemaFeatureInput): ObjectNode? {
         if (input.specVersion < SpecVersion.DRAFT_06) {
             // Const exist only since draft 6
@@ -42,14 +42,14 @@ class ConstDetection : Strategy(), GenericSchemaFeature {
         var result = false
 
 
-        this.askUserWith("Inferring - Possible Constant Found") {
+        askUserWith("Inferring - Possible Constant Found") {
             form {
                 fieldset {
                     field(
                         """
-                    |The field with path: ${input.path} seems to have a single distinct value.
-                    |Is this field an const?
-                    """.trimMargin()
+                        |The field with path: ${input.path} seems to have a single distinct value.
+                        |Is this field an const?
+                        """.trimMargin()
                     ) {
                         labelPosition = Orientation.VERTICAL
                         codearea(text = value.toPrettyString()) {

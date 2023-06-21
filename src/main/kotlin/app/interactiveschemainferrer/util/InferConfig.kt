@@ -1,4 +1,4 @@
-package app.util
+package app.interactiveschemainferrer.util
 
 import com.saasquatch.jsonschemainferrer.SpecVersion
 import javafx.beans.property.SimpleBooleanProperty
@@ -17,7 +17,7 @@ import java.io.File
 class InferConfig(
     inputJsons: ObservableList<File> = observableListOf(),
     schemaVersion: SpecVersion = SpecVersion.DRAFT_2020_12,
-    assumeArray: Boolean = false
+    assumeArray: Boolean = true
 ) {
     val inputJsonsProperty = SimpleListProperty(this, "inputJsons", inputJsons)
     val schemaVersionProperty = SimpleObjectProperty(this, "schemaVersion", schemaVersion)

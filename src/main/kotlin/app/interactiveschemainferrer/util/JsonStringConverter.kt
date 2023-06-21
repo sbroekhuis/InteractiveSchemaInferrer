@@ -1,4 +1,4 @@
-package app.util
+package app.interactiveschemainferrer.util
 
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.JsonNode

@@ -1,4 +1,4 @@
-package app.util
+package app.interactiveschemainferrer.util
 
 import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.core.JsonParseException
@@ -135,4 +135,35 @@ private fun jsonTokenToClassName(jsonToken: JsonToken): String = when (jsonToken
     JsonToken.VALUE_NUMBER_FLOAT, JsonToken.VALUE_NUMBER_INT -> "json-number"
     JsonToken.VALUE_TRUE, JsonToken.VALUE_FALSE -> "json-boolean"
     else -> ""
+}
+
+/**
+ * Return a Map of each distinct value to the count of that value in the original list.
+ */
+internal fun <T : Any> Iterable<T?>.frequencies(): Map<T, Int> {
+    return this.filterNotNull().groupingBy { it }.eachCount()
+}
+
+fun newCodeArea(text: String = "", validator: ValidationContext? = null): CodeArea {
+    return CodeArea(text).apply {
+        isEditable = true
+        textProperty().onChange { n ->
+            setStyleSpans(0, highlightJSON(n ?: ""))
+        }
+
+        minHeight = 50.0
+        this.style += "-fx-padding: 10px;"
+        //Initial Styling
+        setStyleSpans(0, highlightJSON(text ?: ""))
+
+        fitToParentHeight()
+
+        validator?.addValidator(this, this.textProperty()) {
+            if (!isValidJSON(it)) {
+                error("Invalid JSON")
+            } else {
+                null
+            }
+        }
+    }
 }

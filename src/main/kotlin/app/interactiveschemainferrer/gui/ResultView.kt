@@ -1,10 +1,10 @@
-package app.gui
+package app.interactiveschemainferrer.gui
 
-import app.InteractiveInferenceController
-import app.util.codearea
-import app.util.fonticon
-import app.util.highlightJSON
-import app.util.richChanges
+import app.interactiveschemainferrer.InteractiveInferenceController
+import app.interactiveschemainferrer.util.codearea
+import app.interactiveschemainferrer.util.fonticon
+import app.interactiveschemainferrer.util.highlightJSON
+import app.interactiveschemainferrer.util.richChanges
 import com.fasterxml.jackson.databind.JsonNode
 import javafx.application.Platform
 import javafx.geometry.Orientation

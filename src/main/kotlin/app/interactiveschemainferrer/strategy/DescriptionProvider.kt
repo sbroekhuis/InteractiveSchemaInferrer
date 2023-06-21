@@ -1,4 +1,4 @@
-package app.strategy
+package app.interactiveschemainferrer.strategy
 
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.saasquatch.jsonschemainferrer.GenericSchemaFeature

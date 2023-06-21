@@ -1,6 +1,6 @@
-package app.strategy
+package app.interactiveschemainferrer.strategy
 
-import app.gui.InferringView
+import app.interactiveschemainferrer.gui.InferringView
 import javafx.scene.Parent
 import tornadofx.*
 import java.util.concurrent.CancellationException
@@ -14,31 +14,33 @@ import java.util.concurrent.ExecutionException
  * We require a user input because we cannot always be certain the change in the schema is valid.
  * It could be a coincidence or the user thinks in the future it will change.
  *
+ * Inferring Traversal Type
+ *
+ * - [com.saasquatch.jsonschemainferrer.EnumExtractor] - [Pre-order](https://en.wikipedia.org/wiki/Tree_traversal#Pre-order,_NLR)
+ *
+ * - [com.saasquatch.jsonschemainferrer.GenericSchemaFeature] - [Post-order](https://en.wikipedia.org/wiki/Tree_traversal#Post-order,_LRN)
+ *
+ *
+ * Ask the user with a form. When a response is finished, call [StrategyFragment.done] inside the [form] function.
+ *
+ * @see ConstDetection.getFeatureResult
  */
-abstract class Strategy {
-
-    /**
-     * Ask the user with a form. When a response is finished, call [StrategyFragment.done] inside the [form] function.
-     *
-     * @see ConstDetection.getFeatureResult
-     */
-    fun askUserWith(title: String?, question: StrategyFragment.() -> Form) {
-        val strategyFragment = object: StrategyFragment() {
-            init{
-                if (title != null) {
-                    this.title = title
-                }
+fun askUserWith(title: String?, question: StrategyFragment.() -> Form) {
+    val strategyFragment = object : StrategyFragment() {
+        init {
+            if (title != null) {
+                this.title = title
             }
-            override val root: Parent = this.question()
         }
-        runLater {
-            find<InferringView>().replaceWith(strategyFragment)
-        }
-        strategyFragment.waitForResponse()
+
+        override val root: Parent = this.question()
     }
-
-
+    runLater {
+        find<InferringView>().replaceWith(strategyFragment)
+    }
+    strategyFragment.waitForResponse()
 }
+
 
 /**
  * StrategyFragment is a [Fragment] that replaces the [InferringView] with a question for the user.
