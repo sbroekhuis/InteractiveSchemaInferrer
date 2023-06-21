@@ -1,6 +1,6 @@
-package app.gui
+package app.interactiveschemainferrer.gui
 
-import app.InteractiveInferenceController
+import app.interactiveschemainferrer.InteractiveInferenceController
 import com.saasquatch.jsonschemainferrer.SpecVersion
 import javafx.scene.control.ButtonBar
 import javafx.stage.FileChooser

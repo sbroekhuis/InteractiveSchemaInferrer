@@ -1,10 +1,10 @@
-package app.strategy
+package app.interactiveschemainferrer.strategy
 
-import app.Const
-import app.util.codearea
-import app.util.highlightJSON
-import app.util.newObject
-import app.util.richChanges
+import app.interactiveschemainferrer.Const
+import app.interactiveschemainferrer.util.codearea
+import app.interactiveschemainferrer.util.highlightJSON
+import app.interactiveschemainferrer.util.newObject
+import app.interactiveschemainferrer.util.richChanges
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.saasquatch.jsonschemainferrer.GenericSchemaFeature
@@ -13,6 +13,7 @@ import com.saasquatch.jsonschemainferrer.SpecVersion
 import javafx.geometry.Orientation
 import javafx.scene.control.ButtonBar
 import tornadofx.*
+import java.util.logging.Logger
 
 /**
  * # Strategy: ConstDetection
@@ -23,10 +24,14 @@ import tornadofx.*
  * samples there is only one distinct sample. We then ask if the value is a const.
  *
  */
-class ConstDetection : Strategy(), GenericSchemaFeature {
+class ConstDetection : GenericSchemaFeature {
+    companion object {
+        val logger: Logger by lazy { Logger.getLogger(ConstDetection::class.qualifiedName) }
+    }
     override fun getFeatureResult(input: GenericSchemaFeatureInput): ObjectNode? {
         if (input.specVersion < SpecVersion.DRAFT_06) {
             // Const exist only since draft 6
+            logger.fine("Const not available in version: ${input.specVersion}")
             return null
         }
 
@@ -36,20 +41,24 @@ class ConstDetection : Strategy(), GenericSchemaFeature {
         val distinctSize = distinct.size
 
         // Return if not applicable
-        if (distinctSize != 1) return null
+        if (distinctSize != 1) {
+            logger.fine("Not exactly one distinct value. Thus, not a constant.")
+            return null
+        }
 
         val value = distinct.first()
+        logger.fine("Possible constant found: $value")
         var result = false
 
 
-        this.askUserWith("Inferring - Possible Constant Found") {
+        askUserWith("Inferring - Possible Constant Found") {
             form {
                 fieldset {
                     field(
                         """
-                    |The field with path: ${input.path} seems to have a single distinct value.
-                    |Is this field an const?
-                    """.trimMargin()
+                        |The field with path: ${input.path} seems to have a single distinct value.
+                        |Is this field an const?
+                        """.trimMargin()
                     ) {
                         labelPosition = Orientation.VERTICAL
                         codearea(text = value.toPrettyString()) {
@@ -79,14 +88,17 @@ class ConstDetection : Strategy(), GenericSchemaFeature {
         }
         if (!result) {
             // It was not a constant.
+            logger.fine("User declined potential constant.")
             return null
         }
+
 
         // It is a const
         val newObject: ObjectNode = newObject()
         newObject.set<ObjectNode>(Const.Field.CONST, value)
         // Remove the existing type from the schema.
         input.schema.remove("type")
+        logger.fine("User accepted const for ${input.path} : $value")
         return newObject
     }
 }

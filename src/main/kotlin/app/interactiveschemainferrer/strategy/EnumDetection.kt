@@ -1,10 +1,7 @@
-package app.strategy
+package app.interactiveschemainferrer.strategy
 
-import app.util.fonticon
-import app.util.highlightJSON
-import app.util.isValidJSON
-import com.fasterxml.jackson.core.JsonParseException
-import com.fasterxml.jackson.core.io.JsonEOFException
+import app.interactiveschemainferrer.util.fonticon
+import app.interactiveschemainferrer.util.newCodeArea
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.saasquatch.jsonschemainferrer.EnumExtractor
@@ -14,11 +11,10 @@ import javafx.geometry.Pos
 import javafx.scene.control.ButtonBar
 import javafx.scene.layout.AnchorPane
 import javafx.scene.layout.Priority
-import org.fxmisc.richtext.CodeArea
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid
 import tornadofx.*
 import java.util.*
-import javax.json.JsonException
+import java.util.logging.Logger
 
 /**
  * # Strategy: EnumDetection
@@ -29,9 +25,11 @@ import javax.json.JsonException
  * We divide this difference and compare it to a the [EnumDetection.THRESHOLD].
  *
  */
-class EnumDetection : Strategy(), EnumExtractor {
+class EnumDetection : EnumExtractor {
 
     companion object {
+        val logger: Logger by lazy { Logger.getLogger(EnumDetection::class.qualifiedName) }
+
         /** Threshold to specify when the difference between distinct and total is substantial */
         var THRESHOLD: Float = 0.1f
     }
@@ -52,44 +50,35 @@ class EnumDetection : Strategy(), EnumExtractor {
         if (distinctSize == 1) {
             // If distinctSize is 1, then this is not an enum but a const
             // See ConstDetection
+            logger.fine("Distinct Size 1, nothing to infer")
             return Collections.emptySet()
         }
 
         val fl = distinctSize.div(totalSize)
-        if (fl > THRESHOLD) return Collections.emptySet()
-
-
-
-        fun newCodeArea(text: String = ""): CodeArea {
-            return CodeArea(text).apply {
-                isEditable = true
-                textProperty().onChange { n ->
-                    setStyleSpans(0, highlightJSON(n ?: ""))
-                }
-
-                minHeight = 50.0
-                this.style += "-fx-padding: 10px;"
-                //Initial Styling
-                setStyleSpans(0, highlightJSON(text ?: ""))
-            }
+        if (fl > THRESHOLD) {
+            logger.fine("Distinct size / total size ($fl) = lower than threshold$THRESHOLD no potential enum found")
+            return Collections.emptySet()
         }
+        logger.fine("Potential enum found: $distinct")
+
+        val validator = ValidationContext()
 
         val answerList = observableListOf(distinct.map {
-            newCodeArea(it.toPrettyString())
+            newCodeArea(it.toPrettyString(), validator)
         })
 
         askUserWith("Inferring - Possible Enum Found") {
             form {
-                val validator = ValidationContext()
 
                 fieldset {
-                    field(
+                    labelPosition = Orientation.VERTICAL
+                    label(
                         """
-                    |The field with path: ${input.path} seems to have a relative small amount distinct values.
-                    |Is this field an enum?
-                    """.trimMargin(),
+                        |The field with path: ${input.path} seems to have a relative small amount distinct values.
+                        |Is this field an enum?
+                        """.trimMargin(),
                     ) {
-                        labelPosition = Orientation.VERTICAL
+                        isWrapText = true
                     }
                     label("Current Values:")
                     listview(answerList) {
@@ -101,16 +90,7 @@ class EnumDetection : Strategy(), EnumExtractor {
                                 alignment = Pos.CENTER_LEFT
                                 vgrow = Priority.ALWAYS
                                 hgrow = Priority.ALWAYS
-                                opcr(this, it).apply {
-                                    fitToParentWidth()
-                                    validator.addValidator(this, this.textProperty()) {
-                                        if (!isValidJSON(it)) {
-                                            error("Invalid JSON")
-                                        } else {
-                                            null
-                                        }
-                                    }
-                                }
+                                opcr(this, it)
 
                                 anchorpane {
                                     button {
@@ -156,15 +136,16 @@ class EnumDetection : Strategy(), EnumExtractor {
                 }
             }
         }
-        if (answerList.isEmpty()) return Collections.emptySet()
+        if (answerList.isEmpty()) {
+            // TODO: If the user deletes all values in the GUI.
+            logger.fine("User declined potential enum.")
+            return Collections.emptySet()
+        }
 
         val answers = answerList.map {
             ObjectMapper().readTree(it.text)
         }.distinct().toMutableList()
-
+        logger.fine("User accepted enum for ${input.path} : [$answers]")
         return Collections.singleton(answers)
     }
 }
-
-class EnumDetectionModel : ItemViewModel<EnumDetection>() {}
-

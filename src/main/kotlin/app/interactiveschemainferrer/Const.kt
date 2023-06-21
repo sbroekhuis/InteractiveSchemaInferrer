@@ -1,4 +1,4 @@
-package app
+package app.interactiveschemainferrer
 
 /** Constants in the Program */
 object Const {

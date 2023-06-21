@@ -33,6 +33,9 @@ dependencies {
     implementation("org.kordamp.ikonli:ikonli-fontawesome5-pack:12.3.1")
     implementation("org.kordamp.ikonli:ikonli-javafx:12.3.1")
     implementation("org.fxmisc.richtext:richtextfx:0.11.0")
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-math3
+    implementation("org.apache.commons:commons-math3:3.6.1")
+    testImplementation(kotlin("test"))
 }
 
 tasks {
@@ -42,6 +45,9 @@ tasks {
     withType<JavaCompile> {
         sourceCompatibility = "11"
         targetCompatibility = "11"
+    }
+    test {
+        useJUnitPlatform()
     }
 }
 

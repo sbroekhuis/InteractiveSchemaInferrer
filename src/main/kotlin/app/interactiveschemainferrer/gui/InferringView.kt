@@ -1,6 +1,6 @@
-package app.gui
+package app.interactiveschemainferrer.gui
 
-import app.util.fonticon
+import app.interactiveschemainferrer.util.fonticon
 import javafx.animation.Timeline
 import javafx.geometry.Insets
 import javafx.geometry.Pos
