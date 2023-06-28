@@ -14,8 +14,10 @@ import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.ObservableList
+import javafx.geometry.Pos
 import javafx.scene.Parent
 import javafx.scene.control.ButtonBar
+import javafx.scene.layout.Priority
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid
 import tornadofx.*
 import java.util.logging.Logger
@@ -40,7 +42,14 @@ class ContainsStrategy : GenericSchemaFeature {
     companion object {
         private val logger: Logger by lazy { Logger.getLogger(ContainsStrategy::class.qualifiedName) }
     }
-    class ContainsCondition(json: String, minValue: Int, maxValue: Int, minDisabled: Boolean, maxDisabled: Boolean) {
+
+    private class ContainsCondition(
+        json: String,
+        minValue: Int,
+        maxValue: Int,
+        minDisabled: Boolean,
+        maxDisabled: Boolean
+    ) {
         val jsonString = SimpleStringProperty(json)
         val minValue = SimpleIntegerProperty(minValue)
         val maxValue = SimpleIntegerProperty(maxValue)
@@ -52,7 +61,6 @@ class ContainsStrategy : GenericSchemaFeature {
         val instance = JsonSchemaFactory.getInstance(specVersion.asNetworknt())
         return instance.getSchema(schema)
     }
-
 
 
     /**
@@ -67,7 +75,7 @@ class ContainsStrategy : GenericSchemaFeature {
         logger.finer(potentialContains.toString())
 
 
-        val contains = convertToContains(potentialContains).asObservable()
+        val contains = preProcessContains(potentialContains).asObservable()
         askUserWith("Inferring - Possible Contains Found", getForm(contains, input.specVersion, input.path))
 
         return when (contains.size) {
@@ -92,7 +100,7 @@ class ContainsStrategy : GenericSchemaFeature {
     /**
      * Converts a set of potential constraints to the TornadoFX models
      */
-    private fun convertToContains(potentialConstraints: Set<Pair<IntConstrains, JsonNode>>): MutableList<ContainsCondition> {
+    private fun preProcessContains(potentialConstraints: Set<Pair<IntConstrains, JsonNode>>): MutableList<ContainsCondition> {
         val result = mutableListOf<ContainsCondition>()
         for ((constraint, second) in potentialConstraints) {
             val (min, max) = constraint
@@ -118,38 +126,54 @@ class ContainsStrategy : GenericSchemaFeature {
                             "Should it have these contains conditions?",
                 )
                 form {
+
                     fieldset(text = "Conditions:") {
-                        for (condition in conditions) {
-                            hbox(spacing = 20) {
-                                button {
-                                    icon = fonticon(FontAwesomeSolid.TRASH)
-                                    action {
-                                        conditions.remove(condition)
-                                    }
-                                }
-                                jsonarea(condition.jsonString)
-                                vbox {
-                                    field("Min:") {
-                                        checkbox(property = condition.minDisabled) {
-                                            this.isDisable = notAvailableInVersion
-                                            if (notAvailableInVersion) tooltip("Not available in current schema version.")
-                                        }
-                                        spinner(property = condition.minValue, max = condition.minValue.get()) {
-                                            disableProperty().bind(condition.maxDisabled)
+                        fun refresh() {
+                            this.clear()
+                            conditions.forEach { condition ->
+                                hbox(spacing = 20) {
+                                    alignment = Pos.CENTER_LEFT
+                                    vgrow = Priority.ALWAYS
+                                    hgrow = Priority.ALWAYS
+
+                                    button {
+                                        icon = fonticon(FontAwesomeSolid.TRASH)
+                                        action {
+                                            conditions.remove(condition)
                                         }
                                     }
-                                    field("Max:") {
-                                        checkbox(property = condition.maxDisabled) {
-                                            this.isDisable = notAvailableInVersion
+                                    jsonarea(condition.jsonString) {
+                                        hgrow = Priority.ALWAYS
+                                        isEditable = false
+                                    }
+                                    vbox(spacing = 5) {
+                                        field("Min:") {
                                             if (notAvailableInVersion) tooltip("Not available in current schema version.")
+                                            checkbox(property = condition.minDisabled) {
+                                                this.isDisable = notAvailableInVersion
+                                            }
+                                            spinner(property = condition.minValue, max = condition.minValue.get()) {
+                                                disableProperty().bind(condition.maxDisabled.not())
+                                            }
                                         }
-                                        spinner(property = condition.maxValue, min = condition.maxValue.get()) {
-                                            disableProperty().bind(condition.maxDisabled)
+                                        field("Max:") {
+                                            if (notAvailableInVersion) tooltip("Not available in current schema version.")
+                                            checkbox(property = condition.maxDisabled) {
+                                                this.isDisable = notAvailableInVersion
+                                            }
+                                            spinner(property = condition.maxValue, min = condition.maxValue.get()) {
+                                                disableProperty().bind(condition.maxDisabled.not())
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
+                        conditions.sizeProperty.onChange {
+                            logger.info("Got here")
+                            refresh() }
+                        refresh()
+
                     }
                     buttonbar {
                         button("Yes", ButtonBar.ButtonData.YES) {

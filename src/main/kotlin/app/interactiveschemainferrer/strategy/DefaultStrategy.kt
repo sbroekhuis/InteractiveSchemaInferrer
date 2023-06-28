@@ -1,7 +1,7 @@
 package app.interactiveschemainferrer.strategy
 
 import app.interactiveschemainferrer.util.frequencies
-import app.interactiveschemainferrer.util.newCodeArea
+import app.interactiveschemainferrer.util.jsonarea
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.saasquatch.jsonschemainferrer.DefaultPolicy
@@ -89,9 +89,7 @@ class DefaultStrategy : DefaultPolicy {
                         """.trimMargin(),
                     )
 
-                    opcr(this, newCodeArea(first.toPrettyString())).apply {
-                        result.bind(this.textProperty())
-                    }
+                    jsonarea(result)
                 }
                 buttonbar {
                     button("Yes", ButtonBar.ButtonData.YES) {

@@ -154,6 +154,7 @@ internal fun <T : Any> Iterable<T?>.frequencies(): Map<T, Int> {
     return this.filterNotNull().groupingBy { it }.eachCount()
 }
 
+
 fun EventTarget.jsonarea(
     jsonProperty: StringProperty,
     validator: ValidationContext? = null,
@@ -165,7 +166,6 @@ fun EventTarget.jsonarea(
     }
     setStyleSpans(0, highlightJSON(text))
     style += "-fx-padding: 10px;"
-    fitToParentWidth()
     validator?.addValidator(this, this.textProperty()) {
         if (!isValidJSON(it)) {
             error("Invalid JSON")
