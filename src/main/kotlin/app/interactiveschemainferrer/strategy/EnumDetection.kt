@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.saasquatch.jsonschemainferrer.EnumExtractor
 import com.saasquatch.jsonschemainferrer.EnumExtractorInput
+import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Orientation
 import javafx.geometry.Pos
 import javafx.scene.control.ButtonBar

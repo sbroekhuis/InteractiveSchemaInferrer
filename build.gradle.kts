@@ -17,6 +17,9 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    maven {
+        url = uri("https://jitpack.io")
+    }
 }
 
 idea {
@@ -35,6 +38,7 @@ dependencies {
     implementation("org.fxmisc.richtext:richtextfx:0.11.0")
     // https://mvnrepository.com/artifact/org.apache.commons/commons-math3
     implementation("org.apache.commons:commons-math3:3.6.1")
+    implementation("com.networknt:json-schema-validator:1.0.84")
     testImplementation(kotlin("test"))
 }
 
@@ -48,6 +52,13 @@ tasks {
     }
     test {
         useJUnitPlatform()
+
+        systemProperty("java.util.logging.config.file", "${project.buildDir}/resources/test/logging-test.properties")
+
+        testLogging {
+            showStandardStreams = true
+        }
+
     }
 }
 

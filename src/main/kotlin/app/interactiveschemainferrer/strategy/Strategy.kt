@@ -25,7 +25,7 @@ import java.util.concurrent.ExecutionException
  *
  * @see ConstDetection.getFeatureResult
  */
-fun askUserWith(title: String?, question: StrategyFragment.() -> Form) {
+fun askUserWith(title: String?, question: StrategyFragment.() -> Parent) {
     val strategyFragment = object : StrategyFragment() {
         init {
             if (title != null) {

@@ -3,7 +3,7 @@ package app.interactiveschemainferrer.strategy
 import app.interactiveschemainferrer.Const
 import app.interactiveschemainferrer.util.codearea
 import app.interactiveschemainferrer.util.highlightJSON
-import app.interactiveschemainferrer.util.newObject
+import app.interactiveschemainferrer.util.objectNode
 import app.interactiveschemainferrer.util.richChanges
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ObjectNode
@@ -28,6 +28,7 @@ class ConstDetection : GenericSchemaFeature {
     companion object {
         val logger: Logger by lazy { Logger.getLogger(ConstDetection::class.qualifiedName) }
     }
+
     override fun getFeatureResult(input: GenericSchemaFeatureInput): ObjectNode? {
         if (input.specVersion < SpecVersion.DRAFT_06) {
             // Const exist only since draft 6
@@ -94,8 +95,10 @@ class ConstDetection : GenericSchemaFeature {
 
 
         // It is a const
-        val newObject: ObjectNode = newObject()
-        newObject.set<ObjectNode>(Const.Field.CONST, value)
+        val newObject: ObjectNode = objectNode() {
+            replace(Const.Fields.CONST, value)
+        }
+        newObject.set<ObjectNode>(Const.Fields.CONST, value)
         // Remove the existing type from the schema.
         input.schema.remove("type")
         logger.fine("User accepted const for ${input.path} : $value")
