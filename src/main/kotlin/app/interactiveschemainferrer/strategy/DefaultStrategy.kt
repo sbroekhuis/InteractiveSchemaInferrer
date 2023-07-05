@@ -1,18 +1,17 @@
 package app.interactiveschemainferrer.strategy
 
+import app.interactiveschemainferrer.util.asJson
 import app.interactiveschemainferrer.util.frequencies
 import app.interactiveschemainferrer.util.jsonarea
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.saasquatch.jsonschemainferrer.DefaultPolicy
 import com.saasquatch.jsonschemainferrer.GenericSchemaFeatureInput
-import javafx.beans.property.SimpleBooleanProperty
-import javafx.beans.property.SimpleStringProperty
 import javafx.scene.control.ButtonBar
+import javafx.scene.layout.Priority
+import javafx.scene.text.Font
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
 import tornadofx.*
 import java.util.logging.Level
-import java.util.logging.Logger
 
 /**
  * # Strategy: Default / Examples
@@ -22,36 +21,33 @@ import java.util.logging.Logger
  * This implements
  *
  */
-class DefaultStrategy : DefaultPolicy {
-    companion object {
+class DefaultStrategy : DefaultPolicy, AbstractStrategy() {
 
-        val logger: Logger by lazy { Logger.getLogger(DefaultStrategy::class.qualifiedName) }
+    /**
+     * Detect outliers based on the count of each distinct value in the collection.
+     */
+    fun <T : Any> outliers(values: Collection<T>): Map<T, Int> {
 
+        // TODO: Design choice write down 1.5IQR or 3SigmaRule
+        // Reason for 3-sigma-rule is that it is less sensitive, resulting in a better user experience.
 
-        /**
-         * Using 1.5 IQR, detect outliers based on the count of each distinct value in the collection.
-         */
-        internal fun <T : Any> Collection<T>.outliers(): Map<T, Int> {
+        val frequencies: Map<T, Int> = values.frequencies()
+        val stats = DescriptiveStatistics()
 
-            // TODO: Design choice write down 1.5IQR or 3SigmaRule
-            // Reason for 3sigmarule is that it is less sensitive, resulting in a better user experience.
-            val frequencies: Map<T, Int> = this.frequencies()
-            val stats = DescriptiveStatistics()
+        frequencies.forEach { stats.addValue(it.value.toDouble()) }
 
-            frequencies.forEach { stats.addValue(it.value.toDouble()) }
+        val mean = stats.mean
+        val standardDeviation = stats.standardDeviation
 
-            val mean = stats.mean
-            val standardDeviation = stats.standardDeviation
-
-            val upperThreshold = mean + (3 * standardDeviation)
-            if (logger.isLoggable(Level.FINER)) {
-                val freqString = frequencies.toList().sortedByDescending { pair -> pair.second }.toString()
-                logger.finer("Outlier info: standardDeviation:$standardDeviation mean:$mean upperThreshold:$upperThreshold size:${frequencies.size}")
-                logger.finer("Frequencies: $freqString")
-            }
-
-            return frequencies.filter { it.value > upperThreshold }.toMap()
+        val upperThreshold = mean + (3 * standardDeviation)
+        // Do not calculate val if not needing to log.
+        if (logger.isLoggable(Level.FINER)) {
+            val freqString = frequencies.toList().sortedByDescending { pair -> pair.second }.toString()
+            logger.finer("Outlier info: standardDeviation:$standardDeviation mean:$mean upperThreshold:$upperThreshold size:${frequencies.size}")
+            logger.finer("Frequencies: $freqString")
         }
+
+        return frequencies.filter { it.value > upperThreshold }.toMap()
     }
 
 
@@ -59,7 +55,7 @@ class DefaultStrategy : DefaultPolicy {
      * Get the default based on the count of distinct values in the samples using [outliers] function.
      */
     override fun getDefault(input: GenericSchemaFeatureInput): JsonNode? {
-        val outliers = input.samples.outliers()
+        val outliers = outliers(input.samples)
         if (outliers.isEmpty()) {
             logger.fine("Samples empty, nothing to infer")
             return null
@@ -74,52 +70,70 @@ class DefaultStrategy : DefaultPolicy {
         }
 
         // Examples does not yet exist, use default instead
+
         val (first, _) = outliers.maxBy { it.value }.toPair()
-        val answer = SimpleBooleanProperty(false)
-        val result = SimpleStringProperty(first.toPrettyString())
+        logger.fine("Potential default found.")
+        logger.finer(first.toPrettyString())
 
-        askUserWith("Inferring - Possible Default Found") {
-            form {
-                val validator = ValidationContext()
-                fieldset {
-                    label(
-                        """
-                        |The field with path: ${input.path} seems to have common value.
-                        |Should this be the default??
-                        """.trimMargin(),
-                    )
+        val result = askUserWith(Form(first, input.path))
 
-                    jsonarea(result)
-                }
-                buttonbar {
-                    button("Yes", ButtonBar.ButtonData.YES) {
-                        enableWhen(validator.valid)
-                        action {
-                            answer.set(true)
-                            done()
-                        }
-                    }
-                    button("No", ButtonBar.ButtonData.NO) {
-                        action {
-                            answer.set(false)
-                            done()
-                        }
-                    }
-                }
-            }
-        }
-
-        if (!answer.get()) {
-            logger.info("Default for ${input.path} declined")
+        if (result == null) {
+            logger.info("User declined potential default.")
             // User does not want default
             return null
         }
 
-        val readTree = ObjectMapper().readTree(result.get())
-        logger.info("Default for ${input.path} accepted, using:")
-        logger.info(readTree.toPrettyString())
-        return readTree
+        logger.fine("User accepted default.")
+        logger.finer(result.toPrettyString())
+        return result
     }
 
+
+    class Form(potentialDefault: JsonNode, val path: String) :
+        StrategyFragment<JsonNode>("Inferring - Possible Default Found") {
+
+        private val defaultProperty = potentialDefault.toPrettyString().toProperty()
+
+        // I do not know how to remove duplicate code here.
+        // All strategies have the same structure.
+        @Suppress("DuplicatedCode")
+        override val root = vbox(spacing = 20.0) {
+            paddingAll = 20.0
+
+            // Add the multiline description label
+            label {
+                graphic = textflow {
+                    text("The field with the path: ")
+                    text(path) { font = Font.font("Monospace") }
+                    text(" seems to have a common value.")
+                    text("\n")
+                    text("Should this be the default?")
+                }
+                isWrapText = true
+            }
+
+            separator()
+            // Body
+            jsonarea(property = defaultProperty, validator) {
+                hgrow = Priority.ALWAYS
+                minHeight = 50.0
+            }
+            separator()
+            // Button Bar
+            buttonbar {
+                button("Yes", ButtonBar.ButtonData.YES) {
+                    enableWhen(validator.valid)
+                    action {
+                        done(defaultProperty.get().asJson())
+                    }
+                }
+                button("No", ButtonBar.ButtonData.NO) {
+                    action {
+                        done()
+                    }
+                }
+            }
+        }
+    }
 
 }

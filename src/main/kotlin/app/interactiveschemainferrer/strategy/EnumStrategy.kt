@@ -4,15 +4,15 @@ import app.interactiveschemainferrer.util.asJson
 import app.interactiveschemainferrer.util.fonticon
 import app.interactiveschemainferrer.util.jsonarea
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.JsonNodeType
 import com.saasquatch.jsonschemainferrer.EnumExtractor
 import com.saasquatch.jsonschemainferrer.EnumExtractorInput
-import javafx.beans.property.SimpleStringProperty
-import javafx.collections.ObservableList
-import javafx.scene.Parent
+import javafx.geometry.Pos
 import javafx.scene.control.ButtonBar
+import javafx.scene.layout.Priority
+import javafx.scene.text.Font
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid
 import tornadofx.*
-import java.util.*
 import java.util.logging.Logger
 
 /**
@@ -24,37 +24,51 @@ import java.util.logging.Logger
  * We divide this difference and compare it to a the [EnumStrategy.THRESHOLD].
  *
  */
-class EnumStrategy : EnumExtractor {
+class EnumStrategy : EnumExtractor, AbstractStrategy() {
 
     companion object {
         private val logger: Logger by lazy { Logger.getLogger(EnumStrategy::class.qualifiedName) }
 
         /** Threshold to specify when the difference between distinct and total is substantial */
-        var THRESHOLD: Float = 0.1f
+        var THRESHOLD: Float = 0.2f
     }
 
-    private class EnumCondition(json: String) {
-        val jsonString = SimpleStringProperty(json)
-    }
-
-    private fun inferPotentialEnums(samples: MutableCollection<out JsonNode>): List<JsonNode>? {
+    private fun inferPotentialEnums(samples: List<JsonNode>): List<JsonNode>? {
+        val totalSize = samples.size.toFloat()
         val distinct = samples.distinct()
         val distinctSize = distinct.size
-        val totalSize = samples.size.toFloat()
 
-        if (distinctSize == 1) {
+        if (distinctSize <= 1) {
             // If distinctSize is 1, then this is not an enum but a const
             // See ConstDetection
-            logger.fine("Distinct Size 1, nothing to infer")
+            logger.fine("Distinct Size <=1, nothing to infer.")
             return null
         }
 
         val fl = distinctSize.div(totalSize)
+        logger.finer("Distinct size ($distinctSize) / total size ($totalSize) (=$fl)")
         if (fl > THRESHOLD) {
-            logger.fine("Distinct size / total size ($fl) = lower than threshold$THRESHOLD no potential enum found")
+            logger.fine("No potential enum found!")
             return null
         }
         return distinct
+    }
+
+    private fun extractEnumPerType(samples : List<JsonNode>, path: String): List<JsonNode>? {
+        // TODO: If some field happens again, perhaps it is the same enum.
+        //  How can we implement this? Definitions?
+        val potentialEnums: List<JsonNode> = inferPotentialEnums(samples) ?: return null
+        logger.fine("Potential enums found")
+        logger.finer(potentialEnums.toString())
+
+        val result = askUserWith(Form(potentialEnums, path))
+        if (result.isNullOrEmpty()) {
+            logger.fine("User declined potential enum.")
+            return null
+        }
+        logger.fine("User accepted enum.")
+
+        return result.toMutableList()
     }
 
     /**
@@ -62,82 +76,86 @@ class EnumStrategy : EnumExtractor {
      * empty. All the elements in each group are expected to come directly from the given
      * samples if possible to ensure [JsonNode.equals] works correctly.
      */
-    override fun extractEnums(input: EnumExtractorInput): MutableCollection<MutableCollection<out JsonNode>> {
-        // TODO: If some field happens again, perhaps it is the same enum.
-        //  How can we implement this? Definitions?
-        val potentialEnums: List<JsonNode> = inferPotentialEnums(input.samples) ?: return Collections.emptySet()
-        logger.fine("Potential enums found")
-        logger.finer(potentialEnums.toString())
-
-        val validator = ValidationContext()
-        val enums = preProcessEnums(potentialEnums).asObservable()
-
-        askUserWith("Inferring - Possible Enum Found", getForm(validator, enums, input.path))
-        if (enums.isEmpty()) {
-            logger.fine("User declined potential enum.")
-            return Collections.emptySet()
+    override fun extractEnums(input: EnumExtractorInput): List<List<JsonNode>> {
+        val test = mutableListOf<JsonNode>()
+        input.samples.forEach{
+            test.add(it.deepCopy())
         }
-
-        val result = enums.map { it.jsonString.get().asJson() }.distinct().toMutableList()
-        logger.fine("User accepted enum.")
-
-        return Collections.singleton(result)
+        logger.info(input.path)
+        val typeListMap: Map<JsonNodeType, List<JsonNode>> = input.samples.filterNotNull().groupBy {
+            it.nodeType
+        }
+        val result = mutableListOf<List<JsonNode>?>()
+        for ((type, value) in typeListMap) {
+            if (type == JsonNodeType.BOOLEAN) {
+                // Ignore booleans, since they are enums of True/False
+                continue
+            }
+            result.add(extractEnumPerType(value, input.path))
+        }
+        return result.filterNotNull();
     }
 
-    private fun getForm(
-        validator: ValidationContext,
-        enums: ObservableList<EnumCondition>,
-        path: String
-    ): StrategyFragment.() -> Parent {
-        return {
-            vbox(20) {
-                text(
-                    """
-                        |The field with path: $path seems to have a relative small amount distinct values.
-                        |Is this field an enum?
-                        """.trimMargin(),
-                )
-                form {
-                    fieldset(text = "Current enum values:") {
-                        for (enum in enums) {
-                            hbox(spacing = 20) {
-                                button {
-                                    icon = fonticon(FontAwesomeSolid.TRASH)
-                                    action {
-                                        enums.remove(enum)
-                                    }
+    private class Form(potentialEnums: List<JsonNode>, val path: String) :
+        StrategyFragment<List<JsonNode>>("Inferring - Possible Enum Found") {
+
+        val enumValues = potentialEnums.map { it.toPrettyString().toProperty() }.asObservable()
+
+        override val root = vbox(spacing = 20.0) {
+            paddingAll = 20.0
+
+            // Add the multiline description label
+            label {
+                graphic = textflow {
+                    text("The field with path: ")
+                    text(path) { font = Font.font("Monospace") }
+                    text(" seems to have a relative small amount distinct values.")
+                    text("\n")
+                    text("Is this field an enum?")
+                }
+                isWrapText = true
+            }
+
+            separator()
+            // Body
+            listview(enumValues) {
+                cellFormat { value ->
+                    this.graphic =
+                        hbox(spacing = 20) {
+                            button {
+                                this.alignment = Pos.CENTER
+                                this.graphic = fonticon(FontAwesomeSolid.TRASH)
+                                action {
+                                    enumValues.remove(value)
                                 }
-                                jsonarea(enum.jsonString, validator = validator)
+                            }
+                            jsonarea(property = value, validator = validator) {
+                                hgrow = Priority.ALWAYS
+                                minHeight = 50.0
                             }
                         }
-                        button("Add") {
-                            enums.add(EnumCondition(""))
-                        }
+
+                }
+            }
+
+            separator()
+            // Button Bar
+            buttonbar {
+                button("Yes", ButtonBar.ButtonData.YES) {
+                    enableWhen(this@Form.validator.valid)
+                    action {
+                        done(enumValues.map {
+                            it.get().asJson()
+                        })
                     }
-                    buttonbar {
-                        button("Yes", ButtonBar.ButtonData.YES) {
-                            enableWhen(validator.valid.and(enums.sizeProperty.gt(0)))
-                            action {
-                                done()
-                            }
-                        }
-                        button("No", ButtonBar.ButtonData.NO) {
-                            action {
-                                enums.clear()
-                                done()
-                            }
-                        }
+                }
+                button("No", ButtonBar.ButtonData.NO) {
+                    action {
+                        done()
                     }
                 }
             }
         }
-    }
 
-    private fun preProcessEnums(potentialEnums: List<JsonNode>): MutableList<EnumCondition> {
-        val result = mutableListOf<EnumCondition>()
-        for (potentialEnum in potentialEnums) {
-            result += EnumCondition(potentialEnum.toPrettyString())
-        }
-        return result;
     }
 }

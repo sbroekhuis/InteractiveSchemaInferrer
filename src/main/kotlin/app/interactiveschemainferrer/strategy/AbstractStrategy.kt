@@ -1,11 +1,11 @@
 package app.interactiveschemainferrer.strategy
 
 import app.interactiveschemainferrer.gui.InferringView
-import javafx.scene.Parent
 import tornadofx.*
 import java.util.concurrent.CancellationException
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
+import java.util.logging.Logger
 
 /**
  * # Strategy
@@ -23,22 +23,18 @@ import java.util.concurrent.ExecutionException
  *
  * Ask the user with a form. When a response is finished, call [StrategyFragment.done] inside the [form] function.
  *
- * @see ConstDetection.getFeatureResult
+ * @see ConstStrategy.getFeatureResult
  */
-fun askUserWith(title: String?, question: StrategyFragment.() -> Parent) {
-    val strategyFragment = object : StrategyFragment() {
-        init {
-            if (title != null) {
-                this.title = title
-            }
-        }
+abstract class AbstractStrategy {
+    val logger: Logger = Logger.getLogger(this::class.qualifiedName)
 
-        override val root: Parent = this.question()
+
+    fun <R, T : StrategyFragment<R>> askUserWith(question: T): R? {
+        runLater {
+            find<InferringView>().replaceWith(question)
+        }
+        return question.waitForResponse()
     }
-    runLater {
-        find<InferringView>().replaceWith(strategyFragment)
-    }
-    strategyFragment.waitForResponse()
 }
 
 
@@ -46,12 +42,13 @@ fun askUserWith(title: String?, question: StrategyFragment.() -> Parent) {
  * StrategyFragment is a [Fragment] that replaces the [InferringView] with a question for the user.
  * When done, we return ourselves
  */
-abstract class StrategyFragment : Fragment() {
-    private val cF = CompletableFuture<StrategyFragment>()
+abstract class StrategyFragment<FormData>(title: String) : Fragment(title) {
+    private val cF = CompletableFuture<FormData?>()
+    protected val validator = ValidationContext()
 
-    fun done() {
+    fun done(data: FormData? = null) {
         replaceWith<InferringView>()
-        cF.complete(this@StrategyFragment)
+        cF.complete(data)
     }
 
     /**
@@ -62,7 +59,7 @@ abstract class StrategyFragment : Fragment() {
      * @throws InterruptedException if the current thread was interrupted
      * while waiting
      */
-    fun waitForResponse() {
-        cF.get()
+    fun waitForResponse(): FormData? {
+        return cF.get()
     }
 }

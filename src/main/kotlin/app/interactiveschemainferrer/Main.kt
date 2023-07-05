@@ -3,10 +3,13 @@ package app.interactiveschemainferrer
 import app.interactiveschemainferrer.gui.ConfigurationView
 import app.interactiveschemainferrer.gui.InferringView
 import app.interactiveschemainferrer.gui.ResultView
+import app.interactiveschemainferrer.strategy.ConstStrategy
 import app.interactiveschemainferrer.strategy.ContainsStrategy
+import app.interactiveschemainferrer.strategy.EnumStrategy
 import app.interactiveschemainferrer.util.InferConfigModel
 import app.interactiveschemainferrer.util.addStrategy
 import app.interactiveschemainferrer.util.convertFilesToJson
+import app.interactiveschemainferrer.util.objectNode
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.saasquatch.jsonschemainferrer.JsonSchemaInferrer
@@ -44,18 +47,18 @@ class InteractiveInferenceApp : App(ConfigurationView::class) {
 class InteractiveInferenceController : Controller() {
     fun startInference() {
         val jsonFiles = convertFilesToJson(inferConfig.inputJson.value, inferConfig.assumeArray.value)
+        val schemaInferrer = JsonSchemaInferrer.newBuilder()
+            .setSpecVersion(inferConfig.schemaVersion.value)
+            .setRequiredPolicy(RequiredPolicies.commonFields())
+            // STRATEGIES:
+            .addStrategy(ConstStrategy())
+            .addStrategy(EnumStrategy())
+//            .addStrategy(DefaultStrategy())
+            .addStrategy(ContainsStrategy())
+            //
+            .build()
         runAsync {
-            val schemaInferrer = JsonSchemaInferrer.newBuilder()
-                .setSpecVersion(inferConfig.schemaVersion.value)
-                .setRequiredPolicy(RequiredPolicies.commonFields())
-                // STRATEGIES:
-//                .addStrategy(EnumDetection())
-//                .addStrategy(ConstDetection())
-//                .addStrategy(DefaultStrategy())
-                .addStrategy(ContainsStrategy())
-                //
-                .build()
-
+            Thread.sleep(300)
             log.info("Starting Inferring Schema")
             resultSchema = schemaInferrer.inferForSamples(jsonFiles)
             log.info("Finishing Inferring Schema")
@@ -75,9 +78,6 @@ class InteractiveInferenceController : Controller() {
 
     val inferConfig: InferConfigModel by inject()
     var resultSchema: JsonNode = JsonNodeFactory.instance.objectNode()
-}
-enum class Fruit{
-    APPLE, BANANA
 }
 
 fun main(args: Array<String>) {
@@ -127,6 +127,7 @@ fun readLogConfig() {
     val log: Logger = Logger.getLogger("app.interactiveschemainferrer.ConfigHandler")
     log.level = Level.ALL
     log.info("initializing - trying to load configuration file ...")
+    objectNode().toPrettyString()
 
     try {
         val configFile = object {}.javaClass.getResourceAsStream("/logging.properties")

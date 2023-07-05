@@ -45,6 +45,28 @@ class ContainsStrategyTest {
         TODO("Not implemented")
     }
 
+    @Test
+    fun `test fixing schema anyOf`() {
+        val schema =
+            """{"type":"array","items":{"anyOf":[{"type":"array","items":{"type":"integer"}},{"type":["string","integer"]}]}}""".asJson()
+
+        val expected =
+            """{"type":"array","items":{"anyOf":[{"type":"array","items":{"type":"integer"}},{"type":"string"},{"type": "integer"}]}}""".asJson()
+        ContainsStrategy().fixAnyOfSchema(schema)
+        assertEquals(expected, schema)
+    }
+
+    @Test
+    fun `test fixing schema type array`() {
+        val schema =
+            """{"type":"array","items":{"type":["string","integer"]}}""".asJson()
+
+        val expected =
+            """{"type":"array","items":{"anyOf":[{"type":"string"},{"type": "integer"}]}}""".asJson()
+        ContainsStrategy().fixAnyOfSchema(schema)
+        assertEquals(expected, schema)
+    }
+
 
     @Test
     fun `test simple array`() {
@@ -59,7 +81,7 @@ class ContainsStrategyTest {
         val expected = setOf(
             IntConstrains().apply { update(1) } to schema["items"]["anyOf"][0],
             IntConstrains().apply { update(1); update(2) } to schema["items"]["anyOf"][1],
-        )
+        ) to "[{\"enum\":[\"APPLE\",\"BANANA\"]}, {\"type\":\"integer\"}, {}]".asJson().toList()
         assertEquals(expected, actual)
     }
 }

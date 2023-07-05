@@ -155,12 +155,32 @@ internal fun <T : Any> Iterable<T?>.frequencies(): Map<T, Int> {
 }
 
 
+@Suppress("DuplicatedCode")
 fun EventTarget.jsonarea(
-    jsonProperty: StringProperty,
+    property: StringProperty,
     validator: ValidationContext? = null,
     op: CodeArea.() -> Unit = {}
-) = opcr(this, CodeArea(jsonProperty.get()), op).apply {
-    jsonProperty.stringBinding(this.textProperty()) {it}
+) = opcr(this, CodeArea(property.get()), op).apply {
+    property.stringBinding(this.textProperty()) {it}
+    textProperty().onChange {
+        setStyleSpans(0, highlightJSON(it ?: ""))
+    }
+    setStyleSpans(0, highlightJSON(text))
+    style += "-fx-padding: 10px;"
+    validator?.addValidator(this, this.textProperty()) {
+        if (!isValidJSON(it)) {
+            error("Invalid JSON")
+        } else {
+            null
+        }
+    }
+}
+@Suppress("DuplicatedCode")
+fun EventTarget.jsonarea(
+    text: String,
+    validator: ValidationContext? = null,
+    op: CodeArea.() -> Unit = {}
+) = opcr(this, CodeArea(text), op).apply {
     textProperty().onChange {
         setStyleSpans(0, highlightJSON(it ?: ""))
     }
@@ -209,3 +229,5 @@ operator fun GenericSchemaFeatureInput.component5() = this.path
 
 
 fun @receiver:Language("JSON") String.asJson() = jacksonObjectMapper().readTree(this)
+
+fun <T> T?.optional() = Optional.ofNullable(this)

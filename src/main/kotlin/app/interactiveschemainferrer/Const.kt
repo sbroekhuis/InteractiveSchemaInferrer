@@ -3,8 +3,16 @@ package app.interactiveschemainferrer
 /** Constants in the Program */
 object Const {
     object Fields {
+        const val ITEMS: String = "items"
+        const val TYPE: String = "type"
         const val CONST: String = "const"
         const val ANY_OF: String = "anyOf"
+        const val ALL_OF: String = "allOf"
+        const val CONTAINS: String= "contains"
+        const val MIN_CONTAINS: String= "minContains"
+        const val MAX_CONTAINS: String= "maxContains"
+        const val PREFIX_ITEMS: String= "prefixItems"
+        const val DEFAULT: String= "default"
     }
 
     /**
