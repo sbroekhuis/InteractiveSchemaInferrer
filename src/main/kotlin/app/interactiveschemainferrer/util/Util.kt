@@ -10,12 +10,16 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.ObjectNode
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.saasquatch.jsonschemainferrer.*
+import javafx.beans.property.StringProperty
 import javafx.collections.ObservableList
 import javafx.event.EventTarget
 import org.fxmisc.richtext.CodeArea
 import org.fxmisc.richtext.model.RichTextChange
 import org.fxmisc.richtext.model.StyleSpans
 import org.fxmisc.richtext.model.StyleSpansBuilder
+import org.intellij.lang.annotations.Language
 import org.kordamp.ikonli.Ikon
 import org.kordamp.ikonli.javafx.FontIcon
 import org.reactfx.EventStream
@@ -23,6 +27,8 @@ import tornadofx.*
 import java.io.File
 import java.io.IOException
 import java.util.*
+import com.networknt.schema.SpecVersion as SpecVersionNetwork
+import com.saasquatch.jsonschemainferrer.SpecVersion as SpecVersionSaas
 
 
 @Suppress("SpellCheckingInspection")
@@ -32,6 +38,7 @@ fun EventTarget.fonticon(iconCode: Ikon? = null, op: FontIcon.() -> Unit = {}) =
 
 @Suppress("SpellCheckingInspection")
 fun EventTarget.codearea(text: String, op: CodeArea.() -> Unit = {}) = opcr(this, CodeArea(text), op)
+
 
 fun CodeArea.richChanges(op: EventStream<RichTextChange<MutableCollection<String>, String, MutableCollection<String>>>.() -> Unit = {}): EventStream<RichTextChange<MutableCollection<String>, String, MutableCollection<String>>> =
     this.richChanges().apply(op)
@@ -124,10 +131,13 @@ fun isValidJSON(json: String?): Boolean {
     return true
 }
 
-fun newObject(): ObjectNode {
-    return JsonNodeFactory.instance.objectNode()
+fun objectNode(op: (ObjectNode.() -> Unit) = {}): ObjectNode {
+    return JsonNodeFactory.instance.objectNode().apply(op)
 }
 
+fun arrayNode(children: Collection<JsonNode> = emptyList(), op: (ArrayNode.() -> Unit) = {}): ArrayNode {
+    return JsonNodeFactory.instance.arrayNode().addAll(children).apply(op)
+}
 
 private fun jsonTokenToClassName(jsonToken: JsonToken): String = when (jsonToken) {
     JsonToken.FIELD_NAME -> "json-property"
@@ -144,26 +154,80 @@ internal fun <T : Any> Iterable<T?>.frequencies(): Map<T, Int> {
     return this.filterNotNull().groupingBy { it }.eachCount()
 }
 
-fun newCodeArea(text: String = "", validator: ValidationContext? = null): CodeArea {
-    return CodeArea(text).apply {
-        isEditable = true
-        textProperty().onChange { n ->
-            setStyleSpans(0, highlightJSON(n ?: ""))
-        }
 
-        minHeight = 50.0
-        this.style += "-fx-padding: 10px;"
-        //Initial Styling
-        setStyleSpans(0, highlightJSON(text ?: ""))
-
-        fitToParentHeight()
-
-        validator?.addValidator(this, this.textProperty()) {
-            if (!isValidJSON(it)) {
-                error("Invalid JSON")
-            } else {
-                null
-            }
+@Suppress("DuplicatedCode")
+fun EventTarget.jsonarea(
+    property: StringProperty,
+    validator: ValidationContext? = null,
+    op: CodeArea.() -> Unit = {}
+) = opcr(this, CodeArea(property.get()), op).apply {
+    property.stringBinding(this.textProperty()) {it}
+    textProperty().onChange {
+        setStyleSpans(0, highlightJSON(it ?: ""))
+    }
+    setStyleSpans(0, highlightJSON(text))
+    style += "-fx-padding: 10px;"
+    validator?.addValidator(this, this.textProperty()) {
+        if (!isValidJSON(it)) {
+            error("Invalid JSON")
+        } else {
+            null
         }
     }
 }
+@Suppress("DuplicatedCode")
+fun EventTarget.jsonarea(
+    text: String,
+    validator: ValidationContext? = null,
+    op: CodeArea.() -> Unit = {}
+) = opcr(this, CodeArea(text), op).apply {
+    textProperty().onChange {
+        setStyleSpans(0, highlightJSON(it ?: ""))
+    }
+    setStyleSpans(0, highlightJSON(text))
+    style += "-fx-padding: 10px;"
+    validator?.addValidator(this, this.textProperty()) {
+        if (!isValidJSON(it)) {
+            error("Invalid JSON")
+        } else {
+            null
+        }
+    }
+}
+
+fun JsonSchemaInferrerBuilder.addStrategy(s: ExamplesPolicy) = this.setExamplesPolicy(s)
+fun JsonSchemaInferrerBuilder.addStrategy(s: DefaultPolicy) = this.setDefaultPolicy(s)
+fun JsonSchemaInferrerBuilder.addStrategy(s: GenericSchemaFeature) = this.addGenericSchemaFeatures(s)
+fun JsonSchemaInferrerBuilder.addStrategy(s: EnumExtractor) = this.addEnumExtractors(s)
+fun JsonSchemaInferrerBuilder.addStrategy(s: FormatInferrer) = this.addFormatInferrers(s)
+
+fun ObjectNode.putArray(s: String, op: ArrayNode.() -> Unit) = this.putArray(s).apply(op)
+fun ObjectNode.putObject(s: String, op: ObjectNode.() -> Unit) = this.putObject(s).apply(op)
+
+
+fun SpecVersionNetwork.VersionFlag.asSaasquatch() = when (this) {
+    SpecVersionNetwork.VersionFlag.V201909 -> SpecVersionSaas.DRAFT_2019_09
+    SpecVersionNetwork.VersionFlag.V4 -> SpecVersionSaas.DRAFT_04
+    SpecVersionNetwork.VersionFlag.V6 -> SpecVersionSaas.DRAFT_06
+    SpecVersionNetwork.VersionFlag.V7 -> SpecVersionSaas.DRAFT_07
+    SpecVersionNetwork.VersionFlag.V202012 -> SpecVersionSaas.DRAFT_2020_12
+}
+
+fun SpecVersionSaas.asNetworknt() = when (this) {
+    SpecVersionSaas.DRAFT_2019_09 -> SpecVersionNetwork.VersionFlag.V201909
+    SpecVersionSaas.DRAFT_04 -> SpecVersionNetwork.VersionFlag.V4
+    SpecVersionSaas.DRAFT_06 -> SpecVersionNetwork.VersionFlag.V6
+    SpecVersionSaas.DRAFT_07 -> SpecVersionNetwork.VersionFlag.V7
+    SpecVersionSaas.DRAFT_2020_12 -> SpecVersionNetwork.VersionFlag.V202012
+}
+
+operator fun GenericSchemaFeatureInput.component1() = this.schema
+operator fun GenericSchemaFeatureInput.component2(): MutableCollection<out JsonNode> = this.samples
+operator fun GenericSchemaFeatureInput.component3() = this.type
+operator fun GenericSchemaFeatureInput.component4() = this.specVersion
+operator fun GenericSchemaFeatureInput.component5() = this.path
+
+
+fun @receiver:Language("JSON") String.asJson() = jacksonObjectMapper().readTree(this)
+
+fun <T> T?.optional() = Optional.ofNullable(this)

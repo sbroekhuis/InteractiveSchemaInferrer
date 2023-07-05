@@ -1,6 +1,9 @@
 package app.util
 
+import app.interactiveschemainferrer.util.asNetworknt
+import app.interactiveschemainferrer.util.asSaasquatch
 import app.interactiveschemainferrer.util.frequencies
+import com.saasquatch.jsonschemainferrer.SpecVersion
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -19,5 +22,12 @@ class UtilTests {
         assertEquals(expected, input.frequencies())
     }
 
+
+    @Test
+    fun `test conversion of specversion`(){
+        SpecVersion.values().forEach {
+            assertEquals(it, it.asNetworknt()!!.asSaasquatch())
+        }
+    }
 
 }
