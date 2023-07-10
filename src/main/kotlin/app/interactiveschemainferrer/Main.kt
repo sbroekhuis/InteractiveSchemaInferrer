@@ -83,43 +83,6 @@ class InteractiveInferenceController : Controller() {
 }
 
 fun main(args: Array<String>) {
-
-//
-//    val schemaInferrer = JsonSchemaInferrer.newBuilder()
-//        .setSpecVersion(SpecVersion.DRAFT_2020_12)
-//        .setRequiredPolicy(RequiredPolicies.commonFields())
-//        // STRATEGIES:
-//        .addStrategy(ContainsStrategy())
-//        .addEnumExtractors(EnumExtractors.validEnum(Fruit::class.java))
-//        //
-//        .build()
-//
-//
-//    schemaInferrer.inferForSamples(
-//        listOf(
-//            objectNode {
-//                this.putArray("foo") {
-//                    this.add("BANANA")
-//                    this.add(2)
-//                    this.add(arrayNode {
-//                        this.add(3)
-//                        this.add(5)
-//                    })
-//                }
-//            },
-//            objectNode {
-//                this.putArray("foo") {
-//                    this.add("APPLE")
-//                    this.add(2)
-//                    this.add(arrayNode {
-//                        this.add(3)
-//                        this.add(5)
-//                    })
-//                }
-//            },
-//        )
-//    )
-//    return;
     readLogConfig();
     launch<InteractiveInferenceApp>(args)
 }

@@ -101,7 +101,7 @@ class EnumStrategy : EnumExtractor, AbstractStrategy() {
 
         val enumValues = potentialEnums.map { it.toPrettyString().toProperty() }.asObservable()
 
-        override val root = vbox(spacing = 20.0) {
+        override val root = strategyroot("https://json-schema.org/understanding-json-schema/reference/generic.html#enumerated-values") {
             paddingAll = 20.0
 
             // Add the multiline description label
@@ -140,6 +140,7 @@ class EnumStrategy : EnumExtractor, AbstractStrategy() {
 
             separator()
             // Button Bar
+            region { vgrow = Priority.ALWAYS }
             buttonbar {
                 button("Yes", ButtonBar.ButtonData.YES) {
                     enableWhen(this@Form.validator.valid)
