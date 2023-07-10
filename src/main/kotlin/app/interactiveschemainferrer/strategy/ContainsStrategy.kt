@@ -327,8 +327,7 @@ class ContainsStrategy : GenericSchemaFeature, AbstractStrategy() {
         val prefixItemsValues = potentialPrefixItems.asObservable()
         val skipContains = SimpleBooleanProperty(false)
 
-        override val root = vbox(spacing = 20.0) {
-            paddingAll = 20.0
+        override val root = strategyroot("https://json-schema.org/understanding-json-schema/reference/array.html#tuple-validation") {
 
             // Add the multiline description label
             label {
@@ -342,7 +341,6 @@ class ContainsStrategy : GenericSchemaFeature, AbstractStrategy() {
                     text("If you rather want a 'contains' condition, disable all the cases you do not want or press NO. ");
                     text("After this question, if applicable, we will ask you to specify 'contains' excluding all the rules from here.")
                 }
-                isWrapText = true
             }
 
             separator()
@@ -386,6 +384,7 @@ class ContainsStrategy : GenericSchemaFeature, AbstractStrategy() {
                 checkbox(text = "Skip Contains?", property = skipContains)
             }
             // Button Bar
+            region { vgrow = Priority.ALWAYS }
             buttonbar {
                 button("Yes", ButtonBar.ButtonData.YES) {
                     enableWhen(validator.valid)
@@ -412,8 +411,7 @@ class ContainsStrategy : GenericSchemaFeature, AbstractStrategy() {
         val notAvailableInVersion = specVersion < SpecVersion.DRAFT_2019_09
         val containsValues = potentialConstraints.asObservable()
 
-        override val root = vbox(spacing = 20.0) {
-            paddingAll = 20.0
+        override val root = strategyroot("https://json-schema.org/understanding-json-schema/reference/array.html#contains") {
 
             // Add the multiline description label
             label {
@@ -475,6 +473,7 @@ class ContainsStrategy : GenericSchemaFeature, AbstractStrategy() {
 
             separator()
             // Button Bar
+            region { vgrow = Priority.ALWAYS }
             buttonbar {
                 button("Yes", ButtonBar.ButtonData.YES) {
                     enableWhen(validator.valid)

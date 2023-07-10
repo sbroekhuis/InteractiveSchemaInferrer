@@ -1,6 +1,11 @@
 package app.interactiveschemainferrer.strategy
 
 import app.interactiveschemainferrer.gui.InferringView
+import javafx.event.EventTarget
+import javafx.scene.layout.Priority
+import javafx.scene.layout.VBox
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid
+import org.kordamp.ikonli.javafx.FontIcon
 import tornadofx.*
 import java.util.concurrent.CancellationException
 import java.util.concurrent.CompletableFuture
@@ -35,6 +40,8 @@ abstract class AbstractStrategy {
         }
         return question.waitForResponse()
     }
+
+
 }
 
 
@@ -61,5 +68,23 @@ abstract class StrategyFragment<FormData>(title: String) : Fragment(title) {
      */
     fun waitForResponse(): FormData? {
         return cF.get()
+    }
+
+    fun EventTarget.strategyroot(helpUrl: String, op: VBox.() -> Unit): VBox {
+        return opcr(this, VBox()).apply {
+            menubar {
+                menu("Help") {
+                    item(
+                        "JSON-Schema documentation", graphic = FontIcon(FontAwesomeSolid.EXTERNAL_LINK_ALT)
+                    ).action {
+                        hostServices.showDocument(helpUrl)
+                    }
+                }
+            }
+            vbox(spacing = 20) {
+                vgrow = Priority.ALWAYS
+                paddingAll = 20.0
+            }.apply(op)
+        }
     }
 }

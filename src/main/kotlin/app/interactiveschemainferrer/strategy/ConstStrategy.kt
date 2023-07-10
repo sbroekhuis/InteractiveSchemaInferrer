@@ -85,8 +85,7 @@ class ConstStrategy : GenericSchemaFeature, AbstractStrategy() {
         // I do not know how to remove duplicate code here.
         // All strategies have the same structure.
         @Suppress("DuplicatedCode")
-        override val root = vbox(spacing = 20.0) {
-            paddingAll = 20.0
+        override val root = strategyroot("https://json-schema.org/understanding-json-schema/reference/generic.html#constant-values") {
 
             // Add the multiline description label
             label {
@@ -109,6 +108,7 @@ class ConstStrategy : GenericSchemaFeature, AbstractStrategy() {
 
             separator()
             // Button Bar
+            region { vgrow = Priority.ALWAYS }
             buttonbar {
                 button("Yes", ButtonBar.ButtonData.YES) {
                     enableWhen(validator.valid)

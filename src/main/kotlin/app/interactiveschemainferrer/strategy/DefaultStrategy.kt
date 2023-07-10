@@ -97,7 +97,7 @@ class DefaultStrategy : DefaultPolicy, AbstractStrategy() {
         // I do not know how to remove duplicate code here.
         // All strategies have the same structure.
         @Suppress("DuplicatedCode")
-        override val root = vbox(spacing = 20.0) {
+        override val root = strategyroot("https://json-schema.org/understanding-json-schema/reference/generic.html#comments") {
             paddingAll = 20.0
 
             // Add the multiline description label
@@ -120,6 +120,7 @@ class DefaultStrategy : DefaultPolicy, AbstractStrategy() {
             }
             separator()
             // Button Bar
+            region { vgrow = Priority.ALWAYS }
             buttonbar {
                 button("Yes", ButtonBar.ButtonData.YES) {
                     enableWhen(validator.valid)

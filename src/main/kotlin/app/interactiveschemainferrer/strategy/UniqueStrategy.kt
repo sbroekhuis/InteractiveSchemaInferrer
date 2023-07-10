@@ -9,6 +9,7 @@ import com.saasquatch.jsonschemainferrer.GenericSchemaFeature
 import com.saasquatch.jsonschemainferrer.GenericSchemaFeatureInput
 import com.saasquatch.jsonschemainferrer.SpecVersion
 import javafx.scene.control.ButtonBar
+import javafx.scene.layout.Priority
 import javafx.scene.text.Font
 import tornadofx.*
 
@@ -62,7 +63,7 @@ class UniqueStrategy : GenericSchemaFeature, AbstractStrategy() {
     }
 
     class UniqueForm(val path: String) : StrategyFragment<Boolean>("Inferring - Possible Unique Found") {
-        override val root = vbox(spacing = 20.0) {
+        override val root = strategyroot("https://json-schema.org/understanding-json-schema/reference/array.html#uniqueness") {
             paddingAll = 20.0
 
             // Add the multiline description label
@@ -79,6 +80,7 @@ class UniqueStrategy : GenericSchemaFeature, AbstractStrategy() {
             separator()
 
             // Button Bar
+            region { vgrow = Priority.ALWAYS }
             buttonbar {
                 button("Yes", ButtonBar.ButtonData.YES) {
                     action {
