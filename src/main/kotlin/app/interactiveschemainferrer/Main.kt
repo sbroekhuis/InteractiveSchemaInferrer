@@ -6,6 +6,7 @@ import app.interactiveschemainferrer.gui.ResultView
 import app.interactiveschemainferrer.strategy.ConstStrategy
 import app.interactiveschemainferrer.strategy.ContainsStrategy
 import app.interactiveschemainferrer.strategy.EnumStrategy
+import app.interactiveschemainferrer.strategy.UniqueStrategy
 import app.interactiveschemainferrer.util.InferConfigModel
 import app.interactiveschemainferrer.util.addStrategy
 import app.interactiveschemainferrer.util.convertFilesToJson
@@ -55,6 +56,7 @@ class InteractiveInferenceController : Controller() {
             .addStrategy(EnumStrategy())
 //            .addStrategy(DefaultStrategy())
             .addStrategy(ContainsStrategy())
+            .addStrategy(UniqueStrategy())
             //
             .build()
         runAsync {

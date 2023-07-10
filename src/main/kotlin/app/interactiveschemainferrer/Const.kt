@@ -13,6 +13,7 @@ object Const {
         const val MAX_CONTAINS: String= "maxContains"
         const val PREFIX_ITEMS: String= "prefixItems"
         const val DEFAULT: String= "default"
+        const val UNIQUE_ITEMS: String= "uniqueItems"
     }
 
     /**

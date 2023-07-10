@@ -161,7 +161,7 @@ fun EventTarget.jsonarea(
     validator: ValidationContext? = null,
     op: CodeArea.() -> Unit = {}
 ) = opcr(this, CodeArea(property.get()), op).apply {
-    property.stringBinding(this.textProperty()) {it}
+    property.stringBinding(this.textProperty()) { it }
     textProperty().onChange {
         setStyleSpans(0, highlightJSON(it ?: ""))
     }
@@ -175,6 +175,7 @@ fun EventTarget.jsonarea(
         }
     }
 }
+
 @Suppress("DuplicatedCode")
 fun EventTarget.jsonarea(
     text: String,
