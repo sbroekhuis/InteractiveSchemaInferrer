@@ -1,8 +1,5 @@
-package app.util
+package app.interactiveschemainferrer.util
 
-import app.interactiveschemainferrer.util.asNetworknt
-import app.interactiveschemainferrer.util.asSaasquatch
-import app.interactiveschemainferrer.util.frequencies
 import com.saasquatch.jsonschemainferrer.SpecVersion
 import kotlin.test.Test
 import kotlin.test.assertEquals

@@ -1,7 +1,8 @@
 package app.interactiveschemainferrer.util
 
 
-typealias IntConstrains = Constraint<Int>
+typealias IntConstraint = Constraint<Int>
+
 class Constraint<T> where T : Comparable<T>, T : Number {
     lateinit var min: T
         private set
@@ -28,6 +29,7 @@ class Constraint<T> where T : Comparable<T>, T : Number {
     }
 
     fun asRange(): ClosedRange<T> {
+
         return min.rangeTo(max)
     }
 
@@ -44,10 +46,6 @@ class Constraint<T> where T : Comparable<T>, T : Number {
         var result = min.hashCode()
         result = 31 * result + max.hashCode()
         return result
-    }
-
-    fun asPair(): Pair<T, T> {
-        return min to max;
     }
 
     operator fun component1(): T = min
