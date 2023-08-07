@@ -33,6 +33,20 @@ class LengthStrategy : AbstractStrategy(), GenericSchemaFeature {
 
     companion object {
         const val SCHEMA_LOCATE_KEY = "_temp_length_reference_key"
+
+        /**
+         * Recursively remove a specific key from a json node and its children.
+         */
+        fun removeKeyFromJsonNode(jsonNode: JsonNode, keyToRemove: String) {
+            if (jsonNode is ObjectNode || jsonNode is ArrayNode) {
+                if (jsonNode.isObject) {
+                    (jsonNode as ObjectNode).remove(keyToRemove)
+                }
+                for (element in jsonNode.elements()) {
+                    removeKeyFromJsonNode(element, keyToRemove)
+                }
+            }
+        }
     }
 
 
@@ -127,10 +141,9 @@ class LengthStrategy : AbstractStrategy(), GenericSchemaFeature {
                 condition.applyToSchema(subSchema)
             }
         }
+
         // Remove all locations key references.
-        schemaReferences.values.forEach {
-            (it as ObjectNode).remove(SCHEMA_LOCATE_KEY)
-        }
+        removeKeyFromJsonNode(schema, SCHEMA_LOCATE_KEY)
     }
 
     private class LengthForm(
@@ -274,7 +287,7 @@ class LengthStrategy : AbstractStrategy(), GenericSchemaFeature {
                 }
             };
 
-            protected fun Double.convert(schema: ObjectNode) : Number =
+            protected fun Double.convert(schema: ObjectNode): Number =
                 if (schema[Const.Fields.TYPE].textValue() != Const.Types.INTEGER) {
                     this
                 } else {

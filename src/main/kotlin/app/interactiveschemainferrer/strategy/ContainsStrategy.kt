@@ -53,9 +53,9 @@ class ContainsStrategy : GenericSchemaFeature, AbstractStrategy() {
             logger.fine("Not an array input, thus we cannot infer contains")
             return emptySet<Pair<IntConstraint, JsonNode>>() to emptyList()
         }
-        if (schema.path(Fields.ITEMS).path(Fields.ANY_OF).isArray) {
+        if (!schema.path(Fields.ITEMS).path(Fields.ANY_OF).isArray) {
             logger.fine("Array does not have an any-of type, testing if is type: array")
-            if (schema.path(Fields.ITEMS).path(Fields.TYPE).isArray) {
+            if (!schema.path(Fields.ITEMS).path(Fields.TYPE).isArray) {
                 logger.fine("Is not type: array, thus a contains/prefixItems does not make sense.")
                 return emptySet<Pair<IntConstraint, JsonNode>>() to emptyList()
             }
