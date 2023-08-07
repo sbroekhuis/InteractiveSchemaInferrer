@@ -90,7 +90,7 @@ class DefaultStrategy : DefaultPolicy, AbstractStrategy() {
 
 
     class Form(potentialDefault: JsonNode, val path: String) :
-        StrategyFragment<JsonNode>("Inferring - Possible Default Found") {
+        StrategyFragment<JsonNode?>("Inferring - Possible Default Found") {
 
         private val defaultProperty = potentialDefault.toPrettyString().toProperty()
 
@@ -130,7 +130,7 @@ class DefaultStrategy : DefaultPolicy, AbstractStrategy() {
                 }
                 button("No", ButtonBar.ButtonData.NO) {
                     action {
-                        done()
+                        done(null)
                     }
                 }
             }

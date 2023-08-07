@@ -93,7 +93,7 @@ class EnumStrategy : EnumExtractor, AbstractStrategy() {
     }
 
     private class Form(potentialEnums: List<JsonNode>, val path: String) :
-        StrategyFragment<List<JsonNode>>("Inferring - Possible Enum Found") {
+        StrategyFragment<List<JsonNode>?>("Inferring - Possible Enum Found") {
 
         val enumValues = potentialEnums.map { it.toPrettyString().toProperty() }.asObservable()
 
@@ -148,7 +148,7 @@ class EnumStrategy : EnumExtractor, AbstractStrategy() {
                 }
                 button("No", ButtonBar.ButtonData.NO) {
                     action {
-                        done()
+                        done(null)
                     }
                 }
             }

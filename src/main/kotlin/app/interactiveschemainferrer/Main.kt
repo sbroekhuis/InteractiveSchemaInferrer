@@ -3,8 +3,7 @@ package app.interactiveschemainferrer
 import app.interactiveschemainferrer.gui.ConfigurationView
 import app.interactiveschemainferrer.gui.InferringView
 import app.interactiveschemainferrer.gui.ResultView
-import app.interactiveschemainferrer.strategy.AbstractStrategy
-import app.interactiveschemainferrer.strategy.LengthStrategy
+import app.interactiveschemainferrer.strategy.*
 import app.interactiveschemainferrer.util.InferConfigModel
 import app.interactiveschemainferrer.util.convertFilesToJson
 import app.interactiveschemainferrer.util.objectNode
@@ -50,11 +49,12 @@ class InteractiveInferenceController : Controller() {
             .setSpecVersion(inferConfig.schemaVersion.value)
             .setRequiredPolicy(RequiredPolicies.commonFields())
             // STRATEGIES:
-//            .addStrategy(ConstStrategy())
-//            .addStrategy(EnumStrategy())
-//            .addStrategy(DefaultStrategy())
-//            .addStrategy(ContainsStrategy())
-//            .addStrategy(UniqueStrategy())
+            .addStrategy(ConstStrategy())
+            .addStrategy(EnumStrategy())
+            .addStrategy(DefaultStrategy())
+            .addStrategy(ContainsStrategy())
+            .addStrategy(UniqueStrategy())
+            .addStrategy(MultipleOfStrategy())
             .addStrategy(LengthStrategy())
             //
             .build()
@@ -82,6 +82,7 @@ class InteractiveInferenceController : Controller() {
         when (s) {
             is DefaultPolicy -> this.setDefaultPolicy(s)
             is ExamplesPolicy -> this.setExamplesPolicy(s)
+            is MultipleOfPolicy -> this.setMultipleOfPolicy(s)
             is GenericSchemaFeature -> this.addGenericSchemaFeatures(s)
             is EnumExtractor -> this.addEnumExtractors(s)
             is FormatInferrer -> this.addFormatInferrers(s)

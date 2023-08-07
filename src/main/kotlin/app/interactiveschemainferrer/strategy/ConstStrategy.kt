@@ -77,7 +77,7 @@ class ConstStrategy : GenericSchemaFeature, AbstractStrategy() {
     }
 
     private class Form(val path: String, potentialConst: JsonNode) :
-        StrategyFragment<JsonNode>("Inferring - Possible Constant Found") {
+        StrategyFragment<JsonNode?>("Inferring - Possible Constant Found") {
 
 
         private val constProperty = potentialConst.toPrettyString().toProperty()
@@ -118,7 +118,7 @@ class ConstStrategy : GenericSchemaFeature, AbstractStrategy() {
                 }
                 button("No", ButtonBar.ButtonData.NO) {
                     action {
-                        done()
+                        done(null)
                     }
                 }
             }

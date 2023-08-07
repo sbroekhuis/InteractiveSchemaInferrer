@@ -46,10 +46,6 @@ class UniqueStrategy : GenericSchemaFeature, AbstractStrategy() {
             return null
         }
         val userWantsUnique = askUserWith(UniqueForm(path))
-        if (userWantsUnique == null) {
-            logger.warning("Result to UniqueForm was null! Skipping...")
-            return null
-        }
 
         if (!userWantsUnique) {
             logger.info("User skipped uniqueItems condition.")

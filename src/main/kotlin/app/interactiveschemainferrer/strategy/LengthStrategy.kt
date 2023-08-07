@@ -119,7 +119,7 @@ class LengthStrategy : AbstractStrategy(), GenericSchemaFeature {
         val schemaReferences: Map<String, JsonNode> =
             schema.findParents(SCHEMA_LOCATE_KEY).associateBy { it.get(SCHEMA_LOCATE_KEY).textValue() }
 
-        askUserWith(LengthForm(storage)).optional().ifPresent { result ->
+        askUserWith(LengthForm(storage)).also { result ->
             for (condition in result) {
                 // Use the key to get the reference in the schema.
                 val subSchema = schemaReferences[condition.path] as ObjectNode
