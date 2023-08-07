@@ -77,10 +77,6 @@ class EnumStrategy : EnumExtractor, AbstractStrategy() {
      * samples if possible to ensure [JsonNode.equals] works correctly.
      */
     override fun extractEnums(input: EnumExtractorInput): List<List<JsonNode>> {
-        val test = mutableListOf<JsonNode>()
-        input.samples.forEach{
-            test.add(it.deepCopy())
-        }
         logger.info(input.path)
         val typeListMap: Map<JsonNodeType, List<JsonNode>> = input.samples.filterNotNull().groupBy {
             it.nodeType
