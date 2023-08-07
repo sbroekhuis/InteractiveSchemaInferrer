@@ -6,8 +6,6 @@ import app.interactiveschemainferrer.util.*
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.ObjectNode
-import com.networknt.schema.JsonSchema
-import com.networknt.schema.JsonSchemaFactory
 import com.saasquatch.jsonschemainferrer.GenericSchemaFeature
 import com.saasquatch.jsonschemainferrer.GenericSchemaFeatureInput
 import com.saasquatch.jsonschemainferrer.SpecVersion
@@ -45,25 +43,25 @@ class ContainsStrategy : GenericSchemaFeature, AbstractStrategy() {
      */
     fun inferPotentialContains(
         schema: ObjectNode, samples: Collection<JsonNode>, type: String?, specVersion: SpecVersion
-    ): Pair<Set<Pair<IntConstrains, JsonNode>>, List<JsonNode>> {
+    ): Pair<Set<Pair<IntConstraint, JsonNode>>, List<JsonNode>> {
         if (specVersion < SpecVersion.DRAFT_06) {
             logger.fine("Not an array input, thus we cannot infer contains")
-            return emptySet<Pair<IntConstrains, JsonNode>>() to emptyList()
+            return emptySet<Pair<IntConstraint, JsonNode>>() to emptyList()
         }
 
         if (type != Types.ARRAY) {
             logger.fine("Not an array input, thus we cannot infer contains")
-            return emptySet<Pair<IntConstrains, JsonNode>>() to emptyList()
+            return emptySet<Pair<IntConstraint, JsonNode>>() to emptyList()
         }
-        if (schema[Fields.ITEMS]?.get(Fields.ANY_OF)?.isArray != true) {
+        if (schema.path(Fields.ITEMS).path(Fields.ANY_OF).isArray) {
             logger.fine("Array does not have an any-of type, testing if is type: array")
-            if (schema[Fields.ITEMS]?.get(Fields.TYPE)?.isArray != true) {
+            if (schema.path(Fields.ITEMS).path(Fields.TYPE).isArray) {
                 logger.fine("Is not type: array, thus a contains/prefixItems does not make sense.")
-                return emptySet<Pair<IntConstrains, JsonNode>>() to emptyList()
+                return emptySet<Pair<IntConstraint, JsonNode>>() to emptyList()
             }
         } else if (!samples.all { it.isArray }) {
             logger.warning("Found a non-array sample in generic feature, the sample seems to be invalid.")
-            return emptySet<Pair<IntConstrains, JsonNode>>() to emptyList()
+            return emptySet<Pair<IntConstraint, JsonNode>>() to emptyList()
         }
         fixAnyOfSchema(schema)
 
@@ -73,7 +71,7 @@ class ContainsStrategy : GenericSchemaFeature, AbstractStrategy() {
 
 
         // Set of Min/Max/Schema
-        val containsResult = mutableSetOf<Pair<IntConstrains, JsonNode>>()
+        val containsResult = mutableSetOf<Pair<IntConstraint, JsonNode>>()
         val largestLengthOfSamples = samples.maxOf(JsonNode::size)
         val prefixItemsResult: MutableList<JsonNode> = (1..largestLengthOfSamples).map { objectNode() }.toMutableList()
 
@@ -81,7 +79,7 @@ class ContainsStrategy : GenericSchemaFeature, AbstractStrategy() {
         for (anyOf in anyOfs) {
             // Make a custom schema
             val jsonSchema = makeSchema(anyOf, specVersion)
-            val constrains = IntConstrains()
+            val constrains = IntConstraint()
 
             // For each array sample
             val indexAlwaysList = (1..largestLengthOfSamples).map { true }.toMutableList()
@@ -118,13 +116,13 @@ class ContainsStrategy : GenericSchemaFeature, AbstractStrategy() {
      * A schema from the inference library with anyOf can contain a list where one item is actually of "type" :[...]
      * it would be better if they were seperate, this function does that.
      */
-    fun fixAnyOfSchema(schema: JsonNode) {
-        var items = schema[Fields.ITEMS]
+    fun fixAnyOfSchema(schema: ObjectNode) {
+        val items: JsonNode = schema.required(Fields.ITEMS)
         if (items.has(Fields.ANY_OF)){
-            val anyOfs: ArrayNode = items[Fields.ANY_OF] as ArrayNode
+            val anyOfs: ArrayNode = items.required(Fields.ANY_OF) as ArrayNode
             val copy = anyOfs.deepCopy()
             for ((i, rule) in copy.withIndex()) {
-                val type = rule["type"] ?: continue
+                val type = rule.get(Fields.TYPE) ?: continue
                 if (type.isArray) {
                     // Case of where this happens
                     anyOfs.remove(i)
@@ -136,8 +134,8 @@ class ContainsStrategy : GenericSchemaFeature, AbstractStrategy() {
                 }
             }
         }
-        if (items.has(Fields.TYPE) && items[Fields.TYPE].isArray) {
-            val typeArray = items[Fields.TYPE] as ArrayNode
+        if (items.path(Fields.TYPE).isArray) {
+            val typeArray = items.required(Fields.TYPE) as ArrayNode
             (items as ObjectNode).replace(Fields.ANY_OF, arrayNode {
                 typeArray.forEach{
                     this.add(objectNode {
@@ -234,7 +232,7 @@ class ContainsStrategy : GenericSchemaFeature, AbstractStrategy() {
     /**
      * Converts a set of potential constraints to the TornadoFX models
      */
-    private fun preProcessContains(potentialConstraints: Set<Pair<IntConstrains, JsonNode>>): MutableList<ContainsCondition> {
+    private fun preProcessContains(potentialConstraints: Set<Pair<IntConstraint, JsonNode>>): MutableList<ContainsCondition> {
         val result = mutableListOf<ContainsCondition>()
         for ((constraint, second) in potentialConstraints) {
             val (min, max) = constraint
@@ -258,10 +256,7 @@ class ContainsStrategy : GenericSchemaFeature, AbstractStrategy() {
     }
 
 
-    private fun makeSchema(schema: JsonNode, specVersion: SpecVersion): JsonSchema {
-        val instance = JsonSchemaFactory.getInstance(specVersion.asNetworknt())
-        return instance.getSchema(schema)
-    }
+
 
 
     private class ContainsCondition(

@@ -3,18 +3,14 @@ package app.interactiveschemainferrer
 import app.interactiveschemainferrer.gui.ConfigurationView
 import app.interactiveschemainferrer.gui.InferringView
 import app.interactiveschemainferrer.gui.ResultView
-import app.interactiveschemainferrer.strategy.ConstStrategy
-import app.interactiveschemainferrer.strategy.ContainsStrategy
-import app.interactiveschemainferrer.strategy.EnumStrategy
-import app.interactiveschemainferrer.strategy.UniqueStrategy
+import app.interactiveschemainferrer.strategy.AbstractStrategy
+import app.interactiveschemainferrer.strategy.LengthStrategy
 import app.interactiveschemainferrer.util.InferConfigModel
-import app.interactiveschemainferrer.util.addStrategy
 import app.interactiveschemainferrer.util.convertFilesToJson
 import app.interactiveschemainferrer.util.objectNode
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
-import com.saasquatch.jsonschemainferrer.JsonSchemaInferrer
-import com.saasquatch.jsonschemainferrer.RequiredPolicies
+import com.saasquatch.jsonschemainferrer.*
 import javafx.application.Platform
 import javafx.stage.Stage
 import javafx.util.Duration
@@ -46,23 +42,27 @@ class InteractiveInferenceApp : App(ConfigurationView::class) {
 }
 
 class InteractiveInferenceController : Controller() {
+
+
     fun startInference() {
         val jsonFiles = convertFilesToJson(inferConfig.inputJson.value, inferConfig.assumeArray.value)
         val schemaInferrer = JsonSchemaInferrer.newBuilder()
             .setSpecVersion(inferConfig.schemaVersion.value)
             .setRequiredPolicy(RequiredPolicies.commonFields())
             // STRATEGIES:
-            .addStrategy(ConstStrategy())
-            .addStrategy(EnumStrategy())
+//            .addStrategy(ConstStrategy())
+//            .addStrategy(EnumStrategy())
 //            .addStrategy(DefaultStrategy())
-            .addStrategy(ContainsStrategy())
-            .addStrategy(UniqueStrategy())
+//            .addStrategy(ContainsStrategy())
+//            .addStrategy(UniqueStrategy())
+            .addStrategy(LengthStrategy())
             //
             .build()
         runAsync {
             Thread.sleep(300)
             log.info("Starting Inferring Schema")
             resultSchema = schemaInferrer.inferForSamples(jsonFiles)
+            strategies.forEach { it.postProcess(resultSchema) }
             log.info("Finishing Inferring Schema")
         }.success {
             runLater {
@@ -75,11 +75,24 @@ class InteractiveInferenceController : Controller() {
                 )
             }
         }
-
     }
+
+
+    private fun JsonSchemaInferrerBuilder.addStrategy(s: AbstractStrategy): JsonSchemaInferrerBuilder =
+        when (s) {
+            is DefaultPolicy -> this.setDefaultPolicy(s)
+            is ExamplesPolicy -> this.setExamplesPolicy(s)
+            is GenericSchemaFeature -> this.addGenericSchemaFeatures(s)
+            is EnumExtractor -> this.addEnumExtractors(s)
+            is FormatInferrer -> this.addFormatInferrers(s)
+            else -> {
+                throw IllegalArgumentException("Unknown Strategy Type")
+            }
+        }.also { strategies.add(s) }
 
     val inferConfig: InferConfigModel by inject()
     var resultSchema: JsonNode = JsonNodeFactory.instance.objectNode()
+    private val strategies: MutableSet<AbstractStrategy> = mutableSetOf()
 }
 
 fun main(args: Array<String>) {

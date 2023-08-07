@@ -1,6 +1,7 @@
 package app.interactiveschemainferrer.strategy
 
 import app.interactiveschemainferrer.gui.InferringView
+import com.fasterxml.jackson.databind.JsonNode
 import javafx.event.EventTarget
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
@@ -42,6 +43,12 @@ abstract class AbstractStrategy {
     }
 
 
+    /**
+     * After finishing running the inferrer, call the postProcess for all strategies.
+     */
+    open fun postProcess(schema: JsonNode) {
+        return
+    }
 }
 
 
@@ -70,14 +77,16 @@ abstract class StrategyFragment<FormData>(title: String) : Fragment(title) {
         return cF.get()
     }
 
-    fun EventTarget.strategyroot(helpUrl: String, op: VBox.() -> Unit): VBox {
+    fun EventTarget.strategyroot(helpUrl: String? = null, op: VBox.() -> Unit): VBox {
         return opcr(this, VBox()).apply {
-            menubar {
-                menu("Help") {
-                    item(
-                        "JSON-Schema documentation", graphic = FontIcon(FontAwesomeSolid.EXTERNAL_LINK_ALT)
-                    ).action {
-                        hostServices.showDocument(helpUrl)
+            if (!helpUrl.isNullOrEmpty()) {
+                menubar {
+                    menu("Help") {
+                        item(
+                            "Documentation", graphic = FontIcon(FontAwesomeSolid.EXTERNAL_LINK_ALT)
+                        ).action {
+                            hostServices.showDocument(helpUrl)
+                        }
                     }
                 }
             }

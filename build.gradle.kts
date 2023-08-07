@@ -32,6 +32,7 @@ idea {
 dependencies {
     implementation(fileTree("libs") { include("*.jar") })
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.2")
+    implementation("com.jayway.jsonpath:json-path:2.8.0")
     implementation("no.tornado:tornadofx:1.7.20")
     implementation("org.kordamp.ikonli:ikonli-fontawesome5-pack:12.3.1")
     implementation("org.kordamp.ikonli:ikonli-javafx:12.3.1")

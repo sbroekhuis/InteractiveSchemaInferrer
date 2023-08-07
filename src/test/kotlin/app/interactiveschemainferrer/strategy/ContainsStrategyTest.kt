@@ -1,6 +1,6 @@
 package app.interactiveschemainferrer.strategy
 
-import app.interactiveschemainferrer.util.IntConstrains
+import app.interactiveschemainferrer.util.IntConstraint
 import app.interactiveschemainferrer.util.asJson
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.saasquatch.jsonschemainferrer.SpecVersion
@@ -52,7 +52,7 @@ class ContainsStrategyTest {
 
         val expected =
             """{"type":"array","items":{"anyOf":[{"type":"array","items":{"type":"integer"}},{"type":"string"},{"type": "integer"}]}}""".asJson()
-        ContainsStrategy().fixAnyOfSchema(schema)
+        ContainsStrategy().fixAnyOfSchema(schema as ObjectNode)
         assertEquals(expected, schema)
     }
 
@@ -63,7 +63,7 @@ class ContainsStrategyTest {
 
         val expected =
             """{"type":"array","items":{"anyOf":[{"type":"string"},{"type": "integer"}]}}""".asJson()
-        ContainsStrategy().fixAnyOfSchema(schema)
+        ContainsStrategy().fixAnyOfSchema(schema as ObjectNode)
         assertEquals(expected, schema)
     }
 
@@ -79,8 +79,8 @@ class ContainsStrategyTest {
             SpecVersion.DRAFT_06
         )
         val expected = setOf(
-            IntConstrains().apply { update(1) } to schema["items"]["anyOf"][0],
-            IntConstrains().apply { update(1); update(2) } to schema["items"]["anyOf"][1],
+            IntConstraint().apply { update(1) } to schema["items"]["anyOf"][0],
+            IntConstraint().apply { update(1); update(2) } to schema["items"]["anyOf"][1],
         ) to "[{\"enum\":[\"APPLE\",\"BANANA\"]}, {\"type\":\"integer\"}, {}]".asJson().toList()
         assertEquals(expected, actual)
     }

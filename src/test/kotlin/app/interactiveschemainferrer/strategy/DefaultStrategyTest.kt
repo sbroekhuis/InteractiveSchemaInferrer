@@ -1,6 +1,5 @@
-package app.strategy
+package app.interactiveschemainferrer.strategy
 
-import app.interactiveschemainferrer.strategy.DefaultStrategy
 import kotlin.test.Test
 
 
