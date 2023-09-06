@@ -20,6 +20,7 @@ import javafx.scene.text.FontPosture
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid
 import tornadofx.*
 
+
 /**
  * # Strategy: Contains/Prefix
  * This strategy implements the [Contains/PrefixItems](https://json-schema.org/understanding-json-schema/reference/array.html)
@@ -64,7 +65,6 @@ class ContainsStrategy : GenericSchemaFeature, AbstractStrategy() {
             return emptySet<Pair<IntConstraint, JsonNode>>() to emptyList()
         }
         fixAnyOfSchema(schema)
-
 
 
         val anyOfs: List<JsonNode> = schema[Fields.ITEMS][Fields.ANY_OF].elements().asSequence().toList()
@@ -118,7 +118,7 @@ class ContainsStrategy : GenericSchemaFeature, AbstractStrategy() {
      */
     fun fixAnyOfSchema(schema: ObjectNode) {
         val items: JsonNode = schema.required(Fields.ITEMS)
-        if (items.has(Fields.ANY_OF)){
+        if (items.has(Fields.ANY_OF)) {
             val anyOfs: ArrayNode = items.required(Fields.ANY_OF) as ArrayNode
             val copy = anyOfs.deepCopy()
             for ((i, rule) in copy.withIndex()) {
@@ -137,7 +137,7 @@ class ContainsStrategy : GenericSchemaFeature, AbstractStrategy() {
         if (items.path(Fields.TYPE).isArray) {
             val typeArray = items.required(Fields.TYPE) as ArrayNode
             (items as ObjectNode).replace(Fields.ANY_OF, arrayNode {
-                typeArray.forEach{
+                typeArray.forEach {
                     this.add(objectNode {
                         this.replace(Fields.TYPE, it.deepCopy())
                     })
@@ -167,9 +167,11 @@ class ContainsStrategy : GenericSchemaFeature, AbstractStrategy() {
         logger.finer("PrefixItems: $potentialPrefixItems")
 
         val prefixItems = preProcessPrefixItems(potentialPrefixItems)
+        var field =
+            if (input.specVersion in SpecVersion.DRAFT_04..SpecVersion.DRAFT_2019_09) Fields.ITEMS else Fields.PREFIX_ITEMS
 
 
-        val prefixResultPair = askUserWith(PrefixForm(prefixItems, input.path))
+        val prefixResultPair = askUserWith(PrefixForm(prefixItems, input.path, field))
         val (prefixResult, skipContains) = prefixResultPair
 
         val result = if (prefixResult.isEmpty()) {
@@ -177,7 +179,7 @@ class ContainsStrategy : GenericSchemaFeature, AbstractStrategy() {
             null
         } else {
             logger.fine("User accepted potential prefixItems.")
-            prefixResult.toSchemaCondition()
+            prefixResult.toSchemaCondition(field)
         }
 
         // If we skip contains, return here
@@ -188,12 +190,12 @@ class ContainsStrategy : GenericSchemaFeature, AbstractStrategy() {
 
         val contains = preProcessContains(potentialContains.filterNot {
             // Remove all the cases that the prefixItems already processed.
-            result?.get(Fields.PREFIX_ITEMS)?.contains(it.second) ?: false
+            result?.get(field)?.contains(it.second) ?: false
         }.toSet())
 
-        if (contains.isEmpty()){
+        if (contains.isEmpty()) {
             logger.fine("No other contains conditions possible.")
-            return result;
+            return result
         }
 
         val containsResult = askUserWith(ContainsForm(contains, input.path, input.specVersion))
@@ -252,9 +254,6 @@ class ContainsStrategy : GenericSchemaFeature, AbstractStrategy() {
     }
 
 
-
-
-
     private class ContainsCondition(
         json: String,
         minValue: Int,
@@ -280,6 +279,7 @@ class ContainsStrategy : GenericSchemaFeature, AbstractStrategy() {
         }
     }
 
+
     private class PrefixItemsCondition(
         json: String
     ) {
@@ -287,7 +287,7 @@ class ContainsStrategy : GenericSchemaFeature, AbstractStrategy() {
         val enabled = SimpleBooleanProperty(true)
     }
 
-    private fun List<PrefixItemsCondition>.toSchemaCondition(): ObjectNode = objectNode {
+    private fun List<PrefixItemsCondition>.toSchemaCondition(field: String): ObjectNode = objectNode {
         this.replace(Fields.PREFIX_ITEMS, arrayNode {
             // Make a list where we remove the empty prefixIndex schemas.
             val values = this@toSchemaCondition.dropLastWhile {
@@ -312,84 +312,86 @@ class ContainsStrategy : GenericSchemaFeature, AbstractStrategy() {
      */
     private class PrefixForm(
         potentialPrefixItems: List<PrefixItemsCondition>,
-        val path: String
+        val path: String,
+        val field: String
     ) :
         StrategyFragment<Pair<List<PrefixItemsCondition>, Boolean>>("Inferring - Possible PrefixItems Found") {
         val prefixItemsValues = potentialPrefixItems.asObservable()
         val skipContains = SimpleBooleanProperty(false)
 
-        override val root = strategyroot("https://json-schema.org/understanding-json-schema/reference/array.html#tuple-validation") {
+        override val root =
+            strategyroot("https://json-schema.org/understanding-json-schema/reference/array.html#tuple-validation") {
 
-            // Add the multiline description label
-            label {
-                graphic = textflow {
-                    text("The array with the path: ")
-                    text(path) { font = Font.font("Monospace") }
-                    text(" seems to always contain the following conditions at the specific index.")
-                    text("\n")
-                    text("Should this field have these 'prefixItems' conditions?")
-                    text("\n")
-                    text("If you rather want a 'contains' condition, disable all the cases you do not want or press NO. ");
-                    text("After this question, if applicable, we will ask you to specify 'contains' excluding all the rules from here.")
+                // Add the multiline description label
+                label {
+                    graphic = textflow {
+                        text("The array with the path: ")
+                        text(path) { font = Font.font("Monospace") }
+                        text(" seems to always contain the following conditions at the specific index.")
+                        text("\n")
+                        text("Should this field have these '$field' conditions?")
+                        text("\n")
+                        text("If you rather want a 'contains' condition, disable all the cases you do not want or press NO. ");
+                        text("After this question, if applicable, we will ask you to specify 'contains' excluding all the rules from here.")
+                    }
                 }
-            }
 
-            separator()
+                separator()
 
-            // Body
-            listview(prefixItemsValues) {
-                cellFormat { prefixItems ->
-                    graphic =
-                        hbox(spacing = 20) {
-                            checkbox(property = prefixItems.enabled) {
-                                this.alignment = Pos.CENTER_LEFT
-                                selectedProperty().onChange {
-                                    // todo: fix css not working
-                                    this@hbox.style {
-                                        if (it) {
-                                            opacity = 1.0
-                                            strikethrough = false
-                                            fontStyle = FontPosture.REGULAR
-                                        } else {
-                                            opacity = .5
-                                            fontStyle = FontPosture.ITALIC
-                                            strikethrough = true
+                // Body
+                listview(prefixItemsValues) {
+                    cellFormat { prefixItems ->
+                        graphic =
+                            hbox(spacing = 20) {
+                                checkbox(property = prefixItems.enabled) {
+                                    this.alignment = Pos.CENTER_LEFT
+                                    selectedProperty().onChange {
+                                        // todo: fix css not working
+                                        this@hbox.style {
+                                            if (it) {
+                                                opacity = 1.0
+                                                strikethrough = false
+                                                fontStyle = FontPosture.REGULAR
+                                            } else {
+                                                opacity = .5
+                                                fontStyle = FontPosture.ITALIC
+                                                strikethrough = true
+                                            }
                                         }
                                     }
                                 }
+                                jsonarea(property = prefixItems.jsonString) {
+                                    // Not editable as it is based on the existing schema
+                                    isEditable = false
+                                    hgrow = Priority.ALWAYS
+                                    minHeight = 50.0
+                                }
                             }
-                            jsonarea(property = prefixItems.jsonString) {
-                                // Not editable as it is based on the existing schema
-                                isEditable = false
-                                hgrow = Priority.ALWAYS
-                                minHeight = 50.0
-                            }
+
+                    }
+                }
+
+                separator()
+                // Extra option to skip contains.
+                hbox {
+                    checkbox(text = "Skip Contains?", property = skipContains)
+                }
+                // Button Bar
+                region { vgrow = Priority.ALWAYS }
+                buttonbar {
+                    button("Yes", ButtonBar.ButtonData.YES) {
+                        enableWhen(validator.valid)
+                        action {
+                            done(prefixItemsValues to skipContains.get())
                         }
-
-                }
-            }
-
-            separator()
-            // Extra option to skip contains.
-            hbox {
-                checkbox(text = "Skip Contains?", property = skipContains)
-            }
-            // Button Bar
-            region { vgrow = Priority.ALWAYS }
-            buttonbar {
-                button("Yes", ButtonBar.ButtonData.YES) {
-                    enableWhen(validator.valid)
-                    action {
-                        done(prefixItemsValues to skipContains.get())
                     }
-                }
-                button("No", ButtonBar.ButtonData.NO) {
-                    action {
-                        done(emptyList<PrefixItemsCondition>() to skipContains.get())
+                    button("No", ButtonBar.ButtonData.NO) {
+                        action {
+                            done(emptyList<PrefixItemsCondition>() to skipContains.get())
+                        }
                     }
                 }
             }
-        }
     }
 
     private class ContainsForm(
@@ -402,84 +404,85 @@ class ContainsStrategy : GenericSchemaFeature, AbstractStrategy() {
         val notAvailableInVersion = specVersion < SpecVersion.DRAFT_2019_09
         val containsValues = potentialConstraints.asObservable()
 
-        override val root = strategyroot("https://json-schema.org/understanding-json-schema/reference/array.html#contains") {
+        override val root =
+            strategyroot("https://json-schema.org/understanding-json-schema/reference/array.html#contains") {
 
-            // Add the multiline description label
-            label {
-                graphic = textflow {
-                    text("The array with the path: ")
-                    text(path) { font = Font.font("Monospace") }
-                    text(" seems to always contain the following conditions.")
-                    text("\n")
-                    text("Should this field have these 'contains' conditions?")
+                // Add the multiline description label
+                label {
+                    graphic = textflow {
+                        text("The array with the path: ")
+                        text(path) { font = Font.font("Monospace") }
+                        text(" seems to always contain the following conditions.")
+                        text("\n")
+                        text("Should this field have these 'contains' conditions?")
+                    }
+                    isWrapText = true
                 }
-                isWrapText = true
-            }
 
-            separator()
+                separator()
 
-            // Body
-            listview(containsValues) {
-                cellFormat { condition ->
-                    graphic = cache {
-                        hbox(spacing = 20) {
-                            button {
-                                this.alignment = Pos.CENTER_LEFT
-                                this.graphic = fonticon(FontAwesomeSolid.TRASH)
-                                action {
-                                    containsValues.remove(condition)
-                                }
-                            }
-                            jsonarea(property = condition.jsonString) {
-                                // Not editable as it is based on the existing schema
-                                isEditable = false
-                                hgrow = Priority.ALWAYS
-                            }
-                            vbox(spacing = 20) {
-                                hbox(spacing = 5) {
-                                    label(text = "Min:")
-                                    if (notAvailableInVersion) tooltip("Not available in current schema version.")
-                                    checkbox(property = condition.minDisabled) {
-                                        this.isDisable = notAvailableInVersion
-                                    }
-                                    spinner(property = condition.minValue, max = condition.minValue.get()) {
-                                        disableProperty().bind(condition.minDisabled.not())
+                // Body
+                listview(containsValues) {
+                    cellFormat { condition ->
+                        graphic = cache {
+                            hbox(spacing = 20) {
+                                button {
+                                    this.alignment = Pos.CENTER_LEFT
+                                    this.graphic = fonticon(FontAwesomeSolid.TRASH)
+                                    action {
+                                        containsValues.remove(condition)
                                     }
                                 }
-                                hbox(spacing = 5) {
-                                    label(text = "Max:")
-                                    if (notAvailableInVersion) tooltip("Not available in current schema version.")
-                                    checkbox(property = condition.maxDisabled) {
-                                        this.isDisable = notAvailableInVersion
+                                jsonarea(property = condition.jsonString) {
+                                    // Not editable as it is based on the existing schema
+                                    isEditable = false
+                                    hgrow = Priority.ALWAYS
+                                }
+                                vbox(spacing = 20) {
+                                    hbox(spacing = 5) {
+                                        label(text = "Min:")
+                                        if (notAvailableInVersion) tooltip("Not available in current schema version.")
+                                        checkbox(property = condition.minDisabled) {
+                                            this.isDisable = notAvailableInVersion
+                                        }
+                                        spinner(property = condition.minValue, max = condition.minValue.get()) {
+                                            disableProperty().bind(condition.minDisabled.not())
+                                        }
                                     }
-                                    spinner(property = condition.maxValue, min = condition.maxValue.get()) {
-                                        disableProperty().bind(condition.maxDisabled.not())
+                                    hbox(spacing = 5) {
+                                        label(text = "Max:")
+                                        if (notAvailableInVersion) tooltip("Not available in current schema version.")
+                                        checkbox(property = condition.maxDisabled) {
+                                            this.isDisable = notAvailableInVersion
+                                        }
+                                        spinner(property = condition.maxValue, min = condition.maxValue.get()) {
+                                            disableProperty().bind(condition.maxDisabled.not())
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 }
-            }
 
-            separator()
-            // Button Bar
-            region { vgrow = Priority.ALWAYS }
-            buttonbar {
-                button("Yes", ButtonBar.ButtonData.YES) {
-                    enableWhen(validator.valid)
-                    action {
-                        done(containsValues)
+                separator()
+                // Button Bar
+                region { vgrow = Priority.ALWAYS }
+                buttonbar {
+                    button("Yes", ButtonBar.ButtonData.YES) {
+                        enableWhen(validator.valid)
+                        action {
+                            done(containsValues)
+                        }
+                    }
+                    button("No", ButtonBar.ButtonData.NO) {
+                        action {
+                            done(null)
+                        }
                     }
                 }
-                button("No", ButtonBar.ButtonData.NO) {
-                    action {
-                        done(null)
-                    }
-                }
-            }
 
-        }
+            }
     }
 
 }
