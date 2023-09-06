@@ -13,7 +13,6 @@ import javafx.scene.layout.Priority
 import javafx.scene.text.Font
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid
 import tornadofx.*
-import java.util.logging.Logger
 
 /**
  * # Strategy: EnumDetection
@@ -27,8 +26,6 @@ import java.util.logging.Logger
 class EnumStrategy : EnumExtractor, AbstractStrategy() {
 
     companion object {
-        private val logger: Logger by lazy { Logger.getLogger(EnumStrategy::class.qualifiedName) }
-
         /** Threshold to specify when the difference between distinct and total is substantial */
         var THRESHOLD: Float = 0.2f
     }

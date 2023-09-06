@@ -3,8 +3,7 @@ package app.interactiveschemainferrer
 import app.interactiveschemainferrer.gui.ConfigurationView
 import app.interactiveschemainferrer.gui.InferringView
 import app.interactiveschemainferrer.gui.ResultView
-import app.interactiveschemainferrer.strategy.AbstractStrategy
-import app.interactiveschemainferrer.strategy.LengthStrategy
+import app.interactiveschemainferrer.strategy.*
 import app.interactiveschemainferrer.util.InferConfigModel
 import app.interactiveschemainferrer.util.convertFilesToJson
 import app.interactiveschemainferrer.util.objectNode
@@ -49,13 +48,14 @@ class InteractiveInferenceController : Controller() {
         val schemaInferrer = JsonSchemaInferrer.newBuilder()
             .setSpecVersion(inferConfig.schemaVersion.value)
             .setRequiredPolicy(RequiredPolicies.commonFields())
+            .addFormatInferrers(FormatInferrers.ip(), FormatInferrers.email(), FormatInferrers.dateTime())
             // STRATEGIES:
-//            .addStrategy(ConstStrategy())
-//            .addStrategy(EnumStrategy())
-//            .addStrategy(DefaultStrategy())
-//            .addStrategy(ContainsStrategy())
-//            .addStrategy(UniqueStrategy())
-//            .addStrategy(MultipleOfStrategy())
+            .addStrategy(ConstStrategy())
+            .addStrategy(EnumStrategy())
+            .addStrategy(DefaultStrategy())
+            .addStrategy(ContainsStrategy())
+            .addStrategy(UniqueStrategy())
+            .addStrategy(MultipleOfStrategy())
             .addStrategy(LengthStrategy())
             //
             .build()
@@ -98,7 +98,7 @@ class InteractiveInferenceController : Controller() {
 }
 
 fun main(args: Array<String>) {
-    readLogConfig();
+    readLogConfig()
     launch<InteractiveInferenceApp>(args)
 }
 
