@@ -55,6 +55,7 @@ class InteractiveInferenceController : Controller() {
 //            .addStrategy(DefaultStrategy())
 //            .addStrategy(ContainsStrategy())
 //            .addStrategy(UniqueStrategy())
+//            .addStrategy(MultipleOfStrategy())
             .addStrategy(LengthStrategy())
             //
             .build()
@@ -82,6 +83,7 @@ class InteractiveInferenceController : Controller() {
         when (s) {
             is DefaultPolicy -> this.setDefaultPolicy(s)
             is ExamplesPolicy -> this.setExamplesPolicy(s)
+            is MultipleOfPolicy -> this.setMultipleOfPolicy(s)
             is GenericSchemaFeature -> this.addGenericSchemaFeatures(s)
             is EnumExtractor -> this.addEnumExtractors(s)
             is FormatInferrer -> this.addFormatInferrers(s)

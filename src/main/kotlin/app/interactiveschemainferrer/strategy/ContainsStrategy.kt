@@ -53,9 +53,9 @@ class ContainsStrategy : GenericSchemaFeature, AbstractStrategy() {
             logger.fine("Not an array input, thus we cannot infer contains")
             return emptySet<Pair<IntConstraint, JsonNode>>() to emptyList()
         }
-        if (schema.path(Fields.ITEMS).path(Fields.ANY_OF).isArray) {
+        if (!schema.path(Fields.ITEMS).path(Fields.ANY_OF).isArray) {
             logger.fine("Array does not have an any-of type, testing if is type: array")
-            if (schema.path(Fields.ITEMS).path(Fields.TYPE).isArray) {
+            if (!schema.path(Fields.ITEMS).path(Fields.TYPE).isArray) {
                 logger.fine("Is not type: array, thus a contains/prefixItems does not make sense.")
                 return emptySet<Pair<IntConstraint, JsonNode>>() to emptyList()
             }
@@ -170,10 +170,6 @@ class ContainsStrategy : GenericSchemaFeature, AbstractStrategy() {
 
 
         val prefixResultPair = askUserWith(PrefixForm(prefixItems, input.path))
-        if (prefixResultPair == null) {
-            logger.warning("Result to PrefixForm was null! Skipping...")
-            return null
-        }
         val (prefixResult, skipContains) = prefixResultPair
 
         val result = if (prefixResult.isEmpty()) {
@@ -401,7 +397,7 @@ class ContainsStrategy : GenericSchemaFeature, AbstractStrategy() {
         val path: String,
         specVersion: SpecVersion
     ) :
-        StrategyFragment<List<ContainsCondition>>("Inferring - Possible Contains Found") {
+        StrategyFragment<List<ContainsCondition>?>("Inferring - Possible Contains Found") {
 
         val notAvailableInVersion = specVersion < SpecVersion.DRAFT_2019_09
         val containsValues = potentialConstraints.asObservable()
@@ -478,7 +474,7 @@ class ContainsStrategy : GenericSchemaFeature, AbstractStrategy() {
                 }
                 button("No", ButtonBar.ButtonData.NO) {
                     action {
-                        done()
+                        done(null)
                     }
                 }
             }

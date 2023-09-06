@@ -32,10 +32,10 @@ import java.util.logging.Logger
  * @see ConstStrategy.getFeatureResult
  */
 abstract class AbstractStrategy {
-    val logger: Logger = Logger.getLogger(this::class.qualifiedName)
+    val logger: Logger = Logger.getLogger(this::class.simpleName)
 
 
-    fun <R, T : StrategyFragment<R>> askUserWith(question: T): R? {
+    fun <R, T : StrategyFragment<R>> askUserWith(question: T): R {
         runLater {
             find<InferringView>().replaceWith(question)
         }
@@ -57,10 +57,10 @@ abstract class AbstractStrategy {
  * When done, we return ourselves
  */
 abstract class StrategyFragment<FormData>(title: String) : Fragment(title) {
-    private val cF = CompletableFuture<FormData?>()
+    private val cF = CompletableFuture<FormData>()
     protected val validator = ValidationContext()
 
-    fun done(data: FormData? = null) {
+    fun done(data: FormData) {
         replaceWith<InferringView>()
         cF.complete(data)
     }
@@ -73,7 +73,7 @@ abstract class StrategyFragment<FormData>(title: String) : Fragment(title) {
      * @throws InterruptedException if the current thread was interrupted
      * while waiting
      */
-    fun waitForResponse(): FormData? {
+    fun waitForResponse(): FormData {
         return cF.get()
     }
 
