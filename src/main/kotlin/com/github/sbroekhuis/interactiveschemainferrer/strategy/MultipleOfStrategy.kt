@@ -20,6 +20,10 @@ import tornadofx.*
 class MultipleOfStrategy : AbstractStrategy(), MultipleOfPolicy {
 
     override fun getMultipleOf(input: GenericSchemaFeatureInput): JsonNode? {
+        if (input.samples.distinct().size <= 1) {
+            logger.info("Distinct Samples Size is 1, therefor we should not ask for a multipleOf")
+            return null
+        }
         val result: JsonNode = MultipleOfPolicies.gcd().getMultipleOf(input) ?: return null
         val multipleOf: Number = result.numberValue()
         if (multipleOf == 1) {
@@ -39,35 +43,36 @@ class MultipleOfStrategy : AbstractStrategy(), MultipleOfPolicy {
     private class Form(val path: String, val multipleOf: Number) :
         StrategyFragment<Boolean>("Inferring - Possible MultipleOf Found") {
 
-        override val root = strategyroot("https://json-schema.org/understanding-json-schema/reference/numeric.html#multiples") {
+        override val root =
+            strategyroot("https://json-schema.org/understanding-json-schema/reference/numeric.html#multiples") {
 
-            // Add the multiline description label
-            label {
-                graphic = textflow {
-                    text("The field with path: ")
-                    text(path) { font = Font.font("Monospace") }
-                    text(" seems to be a number with a greatest common divider of ")
-                    text(multipleOf.toString()) { font = Font.font("Monospace") }
-                    text(".\nShould we add this constraint?")
+                // Add the multiline description label
+                label {
+                    graphic = textflow {
+                        text("The field with path: ")
+                        text(path) { font = Font.font("Monospace") }
+                        text(" seems to be a number with a greatest common divider of ")
+                        text(multipleOf.toString()) { font = Font.font("Monospace") }
+                        text(".\nShould we add this constraint?")
+                    }
+                    isWrapText = true
                 }
-                isWrapText = true
-            }
-            separator()
-            // Button Bar
-            region { vgrow = Priority.ALWAYS }
-            buttonbar {
-                button("Yes", ButtonBar.ButtonData.YES) {
-                    enableWhen(validator.valid)
-                    action {
-                        done(true)
+                separator()
+                // Button Bar
+                region { vgrow = Priority.ALWAYS }
+                buttonbar {
+                    button("Yes", ButtonBar.ButtonData.YES) {
+                        enableWhen(validator.valid)
+                        action {
+                            done(true)
+                        }
+                    }
+                    button("No", ButtonBar.ButtonData.NO) {
+                        action {
+                            done(false)
+                        }
                     }
                 }
-                button("No", ButtonBar.ButtonData.NO) {
-                    action {
-                        done(false)
-                    }
-                }
             }
-        }
     }
 }
