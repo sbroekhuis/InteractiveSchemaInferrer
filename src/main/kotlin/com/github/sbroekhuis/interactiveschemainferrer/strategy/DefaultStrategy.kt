@@ -30,7 +30,7 @@ class DefaultStrategy : DefaultPolicy, AbstractStrategy() {
         val max: Map.Entry<T, Int> = frequencies.maxBy { e -> e.value }
         val coverage = max.value.toDouble() / values.size.toDouble()
 
-        return if (coverage > threshold) Optional.of(max.key) else Optional.empty<T>()
+        return if (coverage > threshold && coverage != 1.0) Optional.of(max.key) else Optional.empty<T>()
     }
 
 
