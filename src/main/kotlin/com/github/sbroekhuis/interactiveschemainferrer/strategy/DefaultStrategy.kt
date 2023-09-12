@@ -25,12 +25,12 @@ class DefaultStrategy : DefaultPolicy, AbstractStrategy() {
     /**
      * Detect outliers based on the count of each distinct value in the collection.
      */
-    fun <T : Any> detectDefaultInList(values: Collection<T>, threshold: Double = 0.80): Optional<T> {
+    fun <T : Any> detectDefaultInList(values: Collection<T>, threshold: Double = 0.80): Pair<Optional<T>, Float> {
         val frequencies = values.frequencies()
         val max: Map.Entry<T, Int> = frequencies.maxBy { e -> e.value }
-        val coverage = max.value.toDouble() / values.size.toDouble()
+        val coverage = max.value.toFloat() / values.size.toFloat()
 
-        return if (coverage > threshold && coverage != 1.0) Optional.of(max.key) else Optional.empty<T>()
+        return if (coverage > threshold && coverage != 1.0f) Optional.of(max.key) to coverage else Optional.empty<T>() to 0.0f
     }
 
 
@@ -38,19 +38,19 @@ class DefaultStrategy : DefaultPolicy, AbstractStrategy() {
      * Get the default based on the count of distinct values in the samples using [detectDefaultInList] function.
      */
     override fun getDefault(input: GenericSchemaFeatureInput): JsonNode? {
-        val optional = detectDefaultInList(input.samples)
-        if (optional.isEmpty) {
+        val pair = detectDefaultInList(input.samples)
+        if (pair.first.isEmpty) {
             logger.fine("No default empty, nothing to infer")
             return null
         }
-        val default = optional.get()
+        val default = pair.first.get()
 
         // Examples does not yet exist, use default instead
 
         logger.fine("Potential default found.")
         logger.finer(default.toPrettyString())
 
-        val result = askUserWith(Form(default, input.path))
+        val result = askUserWith(Form(default, pair.second * 100.0,input.path))
 
         if (result == null) {
             logger.info("User declined potential default.")
@@ -64,7 +64,7 @@ class DefaultStrategy : DefaultPolicy, AbstractStrategy() {
     }
 
 
-    class Form(potentialDefault: JsonNode, val path: String) :
+    class Form(potentialDefault: JsonNode, private val percent: Double, val path: String) :
         StrategyFragment<JsonNode?>("Inferring - Possible Default Found") {
 
         private val defaultProperty = potentialDefault.toPrettyString().toProperty()
@@ -80,7 +80,7 @@ class DefaultStrategy : DefaultPolicy, AbstractStrategy() {
                 graphic = textflow {
                     text("The field with the path: ")
                     text(path) { font = Font.font("Monospace") }
-                    text(" seems to have a common value.")
+                    text(" seems to have a common value. ($percent% of values)")
                     text("\n")
                     text("Should this be the default?")
                 }
