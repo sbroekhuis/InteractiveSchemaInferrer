@@ -90,7 +90,7 @@ class LengthStrategy : AbstractStrategy(), GenericSchemaFeature {
     private fun inferArray(samples: List<ArrayNode>, path: String) {
         require(samples.isNotEmpty()) { "Samples cannot be empty" }
 
-        val constraint = IntConstraint(0)
+        val constraint = IntConstraint()
         for (sample in samples) {
             constraint.update(sample.size())
         }
@@ -100,7 +100,7 @@ class LengthStrategy : AbstractStrategy(), GenericSchemaFeature {
     private fun inferNumber(samples: List<NumericNode>, path: String, specVersion: SpecVersion) {
         require(samples.isNotEmpty()) { "Samples cannot be empty" }
 
-        val constraint = Constraint(0.0)
+        val constraint = Constraint<Double>()
         for (it in samples) {
             constraint.update(it.doubleValue())
         }
@@ -110,7 +110,7 @@ class LengthStrategy : AbstractStrategy(), GenericSchemaFeature {
     private fun inferObject(samples: List<ObjectNode>, path: String) {
         require(samples.isNotEmpty()) { "Samples cannot be empty" }
 
-        val constraint = IntConstraint(0)
+        val constraint = IntConstraint()
         for (sample in samples) {
             constraint.update(sample.size())
         }
@@ -120,7 +120,7 @@ class LengthStrategy : AbstractStrategy(), GenericSchemaFeature {
     private fun inferString(samples: List<TextNode>, path: String) {
         require(samples.isNotEmpty()) { "Samples cannot be empty" }
 
-        val constraint = IntConstraint(0)
+        val constraint = IntConstraint()
         for (sample in samples) {
             constraint.update(sample.textValue().length)
         }
