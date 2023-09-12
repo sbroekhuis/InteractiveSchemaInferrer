@@ -1,11 +1,11 @@
 package com.github.sbroekhuis.interactiveschemainferrer.strategy
 
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.ObjectNode
 import com.github.sbroekhuis.interactiveschemainferrer.Const
 import com.github.sbroekhuis.interactiveschemainferrer.util.asJson
 import com.github.sbroekhuis.interactiveschemainferrer.util.jsonarea
 import com.github.sbroekhuis.interactiveschemainferrer.util.objectNode
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.node.ObjectNode
 import com.saasquatch.jsonschemainferrer.GenericSchemaFeature
 import com.saasquatch.jsonschemainferrer.GenericSchemaFeatureInput
 import com.saasquatch.jsonschemainferrer.SpecVersion
@@ -30,6 +30,10 @@ class ConstStrategy : GenericSchemaFeature, AbstractStrategy() {
      * If there is only one distinct value, it is a const.
      */
     fun inferConst(samples: MutableCollection<out JsonNode>): JsonNode? {
+        if (samples.size == 1){
+            logger.fine("A single instance should not be called as a possible const.")
+            return null
+        }
         val distinct = samples.distinct()
         val distinctSize = distinct.size
 
@@ -38,6 +42,8 @@ class ConstStrategy : GenericSchemaFeature, AbstractStrategy() {
             logger.fine("Not exactly one distinct value. Thus, not a constant.")
             return null
         }
+
+
         val value = distinct.first()
         logger.fine("Possible constant found")
         logger.finer(value.toPrettyString())
