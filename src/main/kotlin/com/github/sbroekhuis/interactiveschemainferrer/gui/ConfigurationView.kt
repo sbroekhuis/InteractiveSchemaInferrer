@@ -1,13 +1,17 @@
 package com.github.sbroekhuis.interactiveschemainferrer.gui
 
 import com.github.sbroekhuis.interactiveschemainferrer.InteractiveInferenceController
+import com.github.sbroekhuis.interactiveschemainferrer.util.fonticon
 import com.saasquatch.jsonschemainferrer.SpecVersion
+import javafx.geometry.Pos
 import javafx.scene.control.ButtonBar
 import javafx.stage.FileChooser
 import javafx.util.Duration
 import org.kordamp.ikonli.fontawesome5.FontAwesomeRegular
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid
 import org.kordamp.ikonli.javafx.FontIcon
 import tornadofx.*
+import java.util.stream.Collectors
 
 class ConfigurationView : View("Configuration") {
 
@@ -37,11 +41,15 @@ class ConfigurationView : View("Configuration") {
                 button("Choose Files") {
                     action {
                         val files = chooseFile(
-                            title = "Choose Json Example Files",
-                            filters = arrayOf(FileChooser.ExtensionFilter("Json Files", "*.json")),
+                            title = "Choose JSON Example Files",
+                            filters = arrayOf(FileChooser.ExtensionFilter("JSON Files", "*.json")),
                             mode = FileChooserMode.Multi,
                         )
-                        inferConfig.inputJson.set(files.asObservable())
+                        inferConfig.inputJson.addAll(
+                            files.stream().filter { t -> inferConfig.inputJson.none { u -> u == t } }.collect(
+                                Collectors.toList()
+                            )
+                        )
                     }
                 }
                 inferConfig.addValidator(node = this, property = inferConfig.inputJson) {
@@ -56,7 +64,24 @@ class ConfigurationView : View("Configuration") {
                     }
                 }
             }
-            listview(inferConfig.inputJson)
+            listview(inferConfig.inputJson) {
+                cellFormat { file ->
+                    this.graphic =
+                        hbox(spacing = 20) {
+                            button {
+                                this.alignment = Pos.CENTER
+                                this.graphic = fonticon(FontAwesomeSolid.TRASH)
+                                action {
+                                    inferConfig.inputJson.remove(file)
+                                }
+                            }
+                            text(file.path) {
+                                alignment = Pos.CENTER_LEFT
+                            }
+                        }
+
+                }
+            }
         }
         buttonbar {
             button("Infer Schema", ButtonBar.ButtonData.APPLY) {
