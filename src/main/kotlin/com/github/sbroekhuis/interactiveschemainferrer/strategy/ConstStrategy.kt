@@ -30,10 +30,6 @@ class ConstStrategy : GenericSchemaFeature, AbstractStrategy() {
      * If there is only one distinct value, it is a const.
      */
     fun inferConst(samples: MutableCollection<out JsonNode>): JsonNode? {
-        if (samples.size == 1){
-            logger.fine("A single instance should not be called as a possible const.")
-            return null
-        }
         val distinct = samples.distinct()
         val distinctSize = distinct.size
 
@@ -58,6 +54,10 @@ class ConstStrategy : GenericSchemaFeature, AbstractStrategy() {
         }
         if (input.samples.size == 1) {
             logger.fine("Const for sample size 1 disabled.")
+            return null
+        }
+        if (input.type == Const.Types.NULL){
+            logger.fine("Const ingore null types, as this is const by nature.")
             return null
         }
 
