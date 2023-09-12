@@ -325,7 +325,8 @@ class LengthStrategy : AbstractStrategy(), GenericSchemaFeature {
                         spinner(
                             property = this@RangeCondition.maxValue,
                             min = this@RangeCondition.maxValue.get(),
-                            max = Double.MAX_VALUE
+                            max = Double.MAX_VALUE,
+                            editable = true
                         ) {
                             disableProperty().bind(this@RangeCondition.maxEnabled.not())
                         }
