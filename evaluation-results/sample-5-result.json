@@ -1,0 +1,96 @@
+{
+  "$schema" : "https://json-schema.org/draft/2020-12/schema#",
+  "type" : "object",
+  "properties" : {
+    "id" : {
+      "type" : "string"
+    },
+    "identifiers" : {
+      "type" : "array",
+      "items" : {
+        "type" : "object",
+        "properties" : {
+          "identifier" : {
+            "type" : "string"
+          },
+          "scheme" : {
+            "enum" : [ "SPDX", "Trove", "DEP5" ]
+          }
+        },
+        "required" : [ "identifier", "scheme" ]
+      }
+    },
+    "links" : {
+      "type" : "array",
+      "items" : {
+        "type" : "object",
+        "properties" : {
+          "note" : {
+            "type" : "string"
+          },
+          "url" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "note", "url" ]
+      },
+      "uniqueItems" : true
+    },
+    "name" : {
+      "type" : "string"
+    },
+    "other_names" : {
+      "type" : "array",
+      "items" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "note" : {
+            "anyOf" : [ {
+              "type" : "null"
+            }, {
+              "type" : "string"
+            } ]
+          }
+        },
+        "required" : [ "name", "note" ]
+      },
+      "uniqueItems" : true
+    },
+    "superseded_by" : {
+      "anyOf" : [ {
+        "type" : "null"
+      }, {
+        "type" : "string"
+      } ]
+    },
+    "keywords" : {
+      "type" : "array",
+      "items" : {
+        "enum" : [ "osi-approved", "discouraged", "redundant", "miscellaneous", "non-reusable", "obsolete", "popular", "permissive", "retired", "special-purpose", "copyleft", "international" ]
+      },
+      "uniqueItems" : true
+    },
+    "text" : {
+      "type" : "array",
+      "items" : {
+        "type" : "object",
+        "properties" : {
+          "media_type" : {
+            "enum" : [ "text/html", "text/plain", "application/pdf" ]
+          },
+          "title" : {
+            "enum" : [ "HTML", "Plain Text", "PDF" ]
+          },
+          "url" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "media_type", "title", "url" ]
+      }
+    }
+  },
+  "required" : [ "id", "identifiers", "links", "name", "other_names", "superseded_by", "keywords", "text" ]
+}

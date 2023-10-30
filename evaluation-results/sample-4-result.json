@@ -1,0 +1,1267 @@
+{
+  "$schema" : "https://json-schema.org/draft/2020-12/schema#",
+  "type" : "object",
+  "properties" : {
+    "id" : {
+      "type" : "string"
+    },
+    "title" : {
+      "anyOf" : [ {
+        "type" : "null"
+      }, {
+        "type" : "string"
+      } ]
+    },
+    "originalTitle" : {
+      "anyOf" : [ {
+        "type" : "string"
+      }, {
+        "type" : "null"
+      } ]
+    },
+    "fullTitle" : {
+      "anyOf" : [ {
+        "type" : "null"
+      }, {
+        "type" : "string"
+      } ]
+    },
+    "type" : {
+      "anyOf" : [ {
+        "type" : "null"
+      }, {
+        "const" : "Movie"
+      } ]
+    },
+    "year" : {
+      "anyOf" : [ {
+        "type" : "string"
+      }, {
+        "type" : "null"
+      } ]
+    },
+    "image" : {
+      "anyOf" : [ {
+        "type" : "null"
+      }, {
+        "type" : "string"
+      } ]
+    },
+    "releaseDate" : {
+      "anyOf" : [ {
+        "type" : "null"
+      }, {
+        "type" : "string"
+      } ]
+    },
+    "runtimeMins" : {
+      "anyOf" : [ {
+        "type" : "null"
+      }, {
+        "type" : "string"
+      } ]
+    },
+    "runtimeStr" : {
+      "anyOf" : [ {
+        "type" : "null"
+      }, {
+        "type" : "string"
+      } ]
+    },
+    "plot" : {
+      "anyOf" : [ {
+        "type" : "string"
+      }, {
+        "type" : "null"
+      } ]
+    },
+    "plotLocal" : {
+      "anyOf" : [ {
+        "type" : "string"
+      }, {
+        "type" : "null"
+      } ]
+    },
+    "plotLocalIsRtl" : {
+      "type" : "boolean"
+    },
+    "awards" : {
+      "anyOf" : [ {
+        "type" : "string"
+      }, {
+        "type" : "null"
+      } ]
+    },
+    "directors" : {
+      "anyOf" : [ {
+        "type" : "null"
+      }, {
+        "type" : "string"
+      } ]
+    },
+    "directorList" : {
+      "anyOf" : [ {
+        "type" : "array",
+        "items" : {
+          "type" : "object",
+          "properties" : {
+            "id" : {
+              "type" : "string"
+            },
+            "name" : {
+              "type" : "string"
+            }
+          },
+          "required" : [ "id", "name" ]
+        },
+        "uniqueItems" : true
+      }, {
+        "type" : "null"
+      } ]
+    },
+    "writers" : {
+      "anyOf" : [ {
+        "type" : "null"
+      }, {
+        "type" : "string"
+      } ]
+    },
+    "writerList" : {
+      "anyOf" : [ {
+        "type" : "array",
+        "items" : {
+          "type" : "object",
+          "properties" : {
+            "id" : {
+              "type" : "string"
+            },
+            "name" : {
+              "type" : "string"
+            }
+          },
+          "required" : [ "id", "name" ]
+        },
+        "uniqueItems" : true
+      }, {
+        "type" : "null"
+      } ]
+    },
+    "stars" : {
+      "anyOf" : [ {
+        "type" : "null"
+      }, {
+        "type" : "string"
+      } ]
+    },
+    "starList" : {
+      "anyOf" : [ {
+        "type" : "null"
+      }, {
+        "type" : "array",
+        "items" : {
+          "type" : "object",
+          "properties" : {
+            "id" : {
+              "type" : "string"
+            },
+            "name" : {
+              "type" : "string"
+            }
+          },
+          "required" : [ "id", "name" ]
+        },
+        "uniqueItems" : true
+      } ]
+    },
+    "actorList" : {
+      "anyOf" : [ {
+        "type" : "null"
+      }, {
+        "type" : "array",
+        "items" : {
+          "type" : "object",
+          "properties" : {
+            "id" : {
+              "type" : "string"
+            },
+            "image" : {
+              "type" : "string"
+            },
+            "name" : {
+              "type" : "string"
+            },
+            "asCharacter" : {
+              "type" : "string"
+            }
+          },
+          "required" : [ "id", "image", "name", "asCharacter" ]
+        },
+        "uniqueItems" : true
+      } ]
+    },
+    "fullCast" : {
+      "anyOf" : [ {
+        "type" : "null"
+      }, {
+        "type" : "object",
+        "properties" : {
+          "imDbId" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "fullTitle" : {
+            "type" : "string"
+          },
+          "type" : {
+            "const" : "Movie"
+          },
+          "year" : {
+            "type" : "string"
+          },
+          "directors" : {
+            "type" : "object",
+            "properties" : {
+              "job" : {
+                "const" : "Director"
+              },
+              "items" : {
+                "type" : "array",
+                "items" : {
+                  "type" : "object",
+                  "properties" : {
+                    "id" : {
+                      "type" : "string"
+                    },
+                    "name" : {
+                      "type" : "string"
+                    },
+                    "description" : {
+                      "type" : "string"
+                    }
+                  },
+                  "required" : [ "id", "name", "description" ]
+                },
+                "uniqueItems" : true
+              }
+            },
+            "required" : [ "job", "items" ]
+          },
+          "writers" : {
+            "type" : "object",
+            "properties" : {
+              "job" : {
+                "const" : "Writer"
+              },
+              "items" : {
+                "type" : "array",
+                "items" : {
+                  "type" : "object",
+                  "properties" : {
+                    "id" : {
+                      "type" : "string"
+                    },
+                    "name" : {
+                      "type" : "string"
+                    },
+                    "description" : {
+                      "type" : "string"
+                    }
+                  },
+                  "required" : [ "id", "name", "description" ]
+                },
+                "uniqueItems" : true
+              }
+            },
+            "required" : [ "job", "items" ]
+          },
+          "actors" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object",
+              "properties" : {
+                "id" : {
+                  "type" : "string"
+                },
+                "image" : {
+                  "type" : "string"
+                },
+                "name" : {
+                  "type" : "string"
+                },
+                "asCharacter" : {
+                  "type" : "string"
+                }
+              },
+              "required" : [ "id", "image", "name", "asCharacter" ]
+            },
+            "uniqueItems" : true
+          },
+          "others" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object",
+              "properties" : {
+                "job" : {
+                  "type" : "string"
+                },
+                "items" : {
+                  "type" : "array",
+                  "items" : {
+                    "type" : "object",
+                    "properties" : {
+                      "id" : {
+                        "type" : "string"
+                      },
+                      "name" : {
+                        "type" : "string"
+                      },
+                      "description" : {
+                        "type" : "string"
+                      }
+                    },
+                    "required" : [ "id", "name", "description" ]
+                  },
+                  "uniqueItems" : true
+                }
+              },
+              "required" : [ "job", "items" ]
+            },
+            "uniqueItems" : true
+          },
+          "errorMessage" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "imDbId", "title", "fullTitle", "type", "year", "directors", "writers", "actors", "others", "errorMessage" ]
+      } ]
+    },
+    "genres" : {
+      "anyOf" : [ {
+        "type" : "null"
+      }, {
+        "type" : "string"
+      } ]
+    },
+    "genreList" : {
+      "anyOf" : [ {
+        "type" : "null"
+      }, {
+        "type" : "array",
+        "items" : {
+          "enum" : [ {
+            "key" : "Comedy",
+            "value" : "Comedy"
+          }, {
+            "key" : "Drama",
+            "value" : "Drama"
+          }, {
+            "key" : "Family",
+            "value" : "Family"
+          }, {
+            "key" : "Action",
+            "value" : "Action"
+          }, {
+            "key" : "Romance",
+            "value" : "Romance"
+          }, {
+            "key" : "Adventure",
+            "value" : "Adventure"
+          }, {
+            "key" : "Sci-Fi",
+            "value" : "Sci-Fi"
+          }, {
+            "key" : "Biography",
+            "value" : "Biography"
+          }, {
+            "key" : "History",
+            "value" : "History"
+          }, {
+            "key" : "Crime",
+            "value" : "Crime"
+          }, {
+            "key" : "Mystery",
+            "value" : "Mystery"
+          }, {
+            "key" : "Thriller",
+            "value" : "Thriller"
+          }, {
+            "key" : "War",
+            "value" : "War"
+          }, {
+            "key" : "Fantasy",
+            "value" : "Fantasy"
+          }, {
+            "key" : "Film-Noir",
+            "value" : "Film-Noir"
+          }, {
+            "key" : "Musical",
+            "value" : "Musical"
+          }, {
+            "key" : "Music",
+            "value" : "Music"
+          }, {
+            "key" : "Horror",
+            "value" : "Horror"
+          }, {
+            "key" : "Western",
+            "value" : "Western"
+          }, {
+            "key" : "Sport",
+            "value" : "Sport"
+          }, {
+            "key" : "Animation",
+            "value" : "Animation"
+          } ]
+        },
+        "uniqueItems" : true
+      } ]
+    },
+    "companies" : {
+      "anyOf" : [ {
+        "type" : "string"
+      }, {
+        "type" : "null"
+      } ]
+    },
+    "companyList" : {
+      "anyOf" : [ {
+        "type" : "null"
+      }, {
+        "type" : "array",
+        "items" : {
+          "type" : "object",
+          "properties" : {
+            "id" : {
+              "type" : "string"
+            },
+            "name" : {
+              "type" : "string"
+            }
+          },
+          "required" : [ "id", "name" ]
+        },
+        "uniqueItems" : true
+      } ]
+    },
+    "countries" : {
+      "anyOf" : [ {
+        "type" : "null"
+      }, {
+        "type" : "string"
+      } ]
+    },
+    "countryList" : {
+      "anyOf" : [ {
+        "type" : "null"
+      }, {
+        "type" : "array",
+        "items" : {
+          "enum" : [ {
+            "key" : "USA",
+            "value" : "USA"
+          }, {
+            "key" : "Germany",
+            "value" : "Germany"
+          }, {
+            "key" : "France",
+            "value" : "France"
+          }, {
+            "key" : "Italy",
+            "value" : "Italy"
+          }, {
+            "key" : "UK",
+            "value" : "UK"
+          }, {
+            "key" : "Japan",
+            "value" : "Japan"
+          }, {
+            "key" : "India",
+            "value" : "India"
+          }, {
+            "key" : "Sweden",
+            "value" : "Sweden"
+          }, {
+            "key" : "Algeria",
+            "value" : "Algeria"
+          }, {
+            "key" : "Spain",
+            "value" : "Spain"
+          }, {
+            "key" : "West Germany",
+            "value" : "West Germany"
+          }, {
+            "key" : "Canada",
+            "value" : "Canada"
+          }, {
+            "key" : "Soviet Union",
+            "value" : "Soviet Union"
+          }, {
+            "key" : "Ireland",
+            "value" : "Ireland"
+          }, {
+            "key" : "Austria",
+            "value" : "Austria"
+          }, {
+            "key" : "Iran",
+            "value" : "Iran"
+          }, {
+            "key" : "Denmark",
+            "value" : "Denmark"
+          }, {
+            "key" : "Australia",
+            "value" : "Australia"
+          }, {
+            "key" : "New Zealand",
+            "value" : "New Zealand"
+          }, {
+            "key" : "Mexico",
+            "value" : "Mexico"
+          }, {
+            "key" : "Poland",
+            "value" : "Poland"
+          }, {
+            "key" : "Brazil",
+            "value" : "Brazil"
+          }, {
+            "key" : "South Korea",
+            "value" : "South Korea"
+          }, {
+            "key" : "South Africa",
+            "value" : "South Africa"
+          }, {
+            "key" : "Hong Kong",
+            "value" : "Hong Kong"
+          }, {
+            "key" : "Turkey",
+            "value" : "Turkey"
+          }, {
+            "key" : "Argentina",
+            "value" : "Argentina"
+          }, {
+            "key" : "China",
+            "value" : "China"
+          }, {
+            "key" : "Lebanon",
+            "value" : "Lebanon"
+          }, {
+            "key" : "Cyprus",
+            "value" : "Cyprus"
+          }, {
+            "key" : "Qatar",
+            "value" : "Qatar"
+          } ]
+        },
+        "uniqueItems" : true
+      } ]
+    },
+    "languages" : {
+      "anyOf" : [ {
+        "type" : "string"
+      }, {
+        "type" : "null"
+      } ]
+    },
+    "languageList" : {
+      "anyOf" : [ {
+        "type" : "array",
+        "items" : {
+          "enum" : [ {
+            "key" : "English",
+            "value" : "English"
+          }, {
+            "key" : "None",
+            "value" : "None"
+          }, {
+            "key" : "German",
+            "value" : "German"
+          }, {
+            "key" : "French",
+            "value" : "French"
+          }, {
+            "key" : "Esperanto",
+            "value" : "Esperanto"
+          }, {
+            "key" : "Latin",
+            "value" : "Latin"
+          }, {
+            "key" : "Italian",
+            "value" : "Italian"
+          }, {
+            "key" : "Russian",
+            "value" : "Russian"
+          }, {
+            "key" : "Japanese",
+            "value" : "Japanese"
+          }, {
+            "key" : "Spanish",
+            "value" : "Spanish"
+          }, {
+            "key" : "Bengali",
+            "value" : "Bengali"
+          }, {
+            "key" : "Thai",
+            "value" : "Thai"
+          }, {
+            "key" : "Swedish",
+            "value" : "Swedish"
+          }, {
+            "key" : "Arabic",
+            "value" : "Arabic"
+          }, {
+            "key" : "Turkish",
+            "value" : "Turkish"
+          }, {
+            "key" : "Greek",
+            "value" : "Greek"
+          }, {
+            "key" : "Kurdish",
+            "value" : "Kurdish"
+          }, {
+            "key" : "Cantonese",
+            "value" : "Cantonese"
+          }, {
+            "key" : "Sicilian",
+            "value" : "Sicilian"
+          }, {
+            "key" : "Vietnamese",
+            "value" : "Vietnamese"
+          }, {
+            "key" : "Hebrew",
+            "value" : "Hebrew"
+          }, {
+            "key" : "Nepali",
+            "value" : "Nepali"
+          }, {
+            "key" : "Hungarian",
+            "value" : "Hungarian"
+          }, {
+            "key" : "Korean",
+            "value" : "Korean"
+          }, {
+            "key" : "Norwegian",
+            "value" : "Norwegian"
+          }, {
+            "key" : "Kikuyu",
+            "value" : "Kikuyu"
+          }, {
+            "key" : "Tagalog",
+            "value" : "Tagalog"
+          }, {
+            "key" : "Kalmyk-Oirat",
+            "value" : "Kalmyk-Oirat"
+          }, {
+            "key" : "Quechua",
+            "value" : "Quechua"
+          }, {
+            "key" : "Polish",
+            "value" : "Polish"
+          }, {
+            "key" : "Yiddish",
+            "value" : "Yiddish"
+          }, {
+            "key" : "Belarusian",
+            "value" : "Belarusian"
+          }, {
+            "key" : "Sioux",
+            "value" : "Sioux"
+          }, {
+            "key" : "Pawnee",
+            "value" : "Pawnee"
+          }, {
+            "key" : "Swahili",
+            "value" : "Swahili"
+          }, {
+            "key" : "Xhosa",
+            "value" : "Xhosa"
+          }, {
+            "key" : "Zulu",
+            "value" : "Zulu"
+          }, {
+            "key" : "Gaelic",
+            "value" : "Gaelic"
+          }, {
+            "key" : "Persian",
+            "value" : "Persian"
+          }, {
+            "key" : "Czech",
+            "value" : "Czech"
+          }, {
+            "key" : "Quenya",
+            "value" : "Quenya"
+          }, {
+            "key" : "Old English",
+            "value" : "Old English"
+          }, {
+            "key" : "Sindarin",
+            "value" : "Sindarin"
+          }, {
+            "key" : "Portuguese",
+            "value" : "Portuguese"
+          }, {
+            "key" : "Mandarin",
+            "value" : "Mandarin"
+          }, {
+            "key" : "Kinyarwanda",
+            "value" : "Kinyarwanda"
+          }, {
+            "key" : "Irish Gaelic",
+            "value" : "Irish Gaelic"
+          }, {
+            "key" : "American Sign Language",
+            "value" : "American Sign Language"
+          }, {
+            "key" : "Danish",
+            "value" : "Danish"
+          }, {
+            "key" : "Hindi",
+            "value" : "Hindi"
+          }, {
+            "key" : "Hmong",
+            "value" : "Hmong"
+          }, {
+            "key" : "Latvian",
+            "value" : "Latvian"
+          }, {
+            "key" : "Saami",
+            "value" : "Saami"
+          }, {
+            "key" : "Amharic",
+            "value" : "Amharic"
+          }, {
+            "key" : "Tamil",
+            "value" : "Tamil"
+          }, {
+            "key" : "Telugu",
+            "value" : "Telugu"
+          } ]
+        },
+        "uniqueItems" : true
+      }, {
+        "type" : "null"
+      } ]
+    },
+    "contentRating" : {
+      "anyOf" : [ {
+        "type" : "null"
+      }, {
+        "type" : "string"
+      } ]
+    },
+    "imDbRating" : {
+      "anyOf" : [ {
+        "type" : "null"
+      }, {
+        "type" : "string"
+      } ]
+    },
+    "imDbRatingVotes" : {
+      "anyOf" : [ {
+        "type" : "string"
+      }, {
+        "type" : "null"
+      } ]
+    },
+    "metacriticRating" : {
+      "anyOf" : [ {
+        "type" : "null"
+      }, {
+        "type" : "string"
+      } ]
+    },
+    "ratings" : {
+      "anyOf" : [ {
+        "type" : "null"
+      }, {
+        "type" : "object",
+        "properties" : {
+          "imDbId" : {
+            "type" : "string"
+          },
+          "title" : {
+            "anyOf" : [ {
+              "type" : "string"
+            }, {
+              "type" : "null"
+            } ]
+          },
+          "fullTitle" : {
+            "anyOf" : [ {
+              "type" : "null"
+            }, {
+              "type" : "string"
+            } ]
+          },
+          "type" : {
+            "anyOf" : [ {
+              "type" : "null"
+            }, {
+              "const" : "Movie"
+            } ]
+          },
+          "year" : {
+            "anyOf" : [ {
+              "type" : "string"
+            }, {
+              "type" : "null"
+            } ]
+          },
+          "imDb" : {
+            "anyOf" : [ {
+              "type" : "string"
+            }, {
+              "type" : "null"
+            } ]
+          },
+          "metacritic" : {
+            "anyOf" : [ {
+              "type" : "string"
+            }, {
+              "type" : "null"
+            } ]
+          },
+          "theMovieDb" : {
+            "anyOf" : [ {
+              "type" : "string"
+            }, {
+              "type" : "null"
+            } ]
+          },
+          "rottenTomatoes" : {
+            "anyOf" : [ {
+              "type" : "null"
+            }, {
+              "type" : "string"
+            } ]
+          },
+          "filmAffinity" : {
+            "anyOf" : [ {
+              "type" : "null"
+            }, {
+              "type" : "string"
+            } ]
+          },
+          "errorMessage" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "imDbId", "title", "fullTitle", "type", "year", "imDb", "metacritic", "theMovieDb", "rottenTomatoes", "filmAffinity", "errorMessage" ]
+      } ]
+    },
+    "wikipedia" : {
+      "anyOf" : [ {
+        "type" : "object",
+        "properties" : {
+          "imDbId" : {
+            "type" : "string"
+          },
+          "title" : {
+            "anyOf" : [ {
+              "type" : "null"
+            }, {
+              "type" : "string"
+            } ]
+          },
+          "fullTitle" : {
+            "anyOf" : [ {
+              "type" : "string"
+            }, {
+              "type" : "null"
+            } ]
+          },
+          "type" : {
+            "anyOf" : [ {
+              "const" : "Movie"
+            }, {
+              "type" : "null"
+            } ]
+          },
+          "year" : {
+            "anyOf" : [ {
+              "type" : "string"
+            }, {
+              "type" : "null"
+            } ]
+          },
+          "language" : {
+            "anyOf" : [ {
+              "type" : "null"
+            }, {
+              "type" : "string"
+            } ]
+          },
+          "titleInLanguage" : {
+            "anyOf" : [ {
+              "type" : "string"
+            }, {
+              "type" : "null"
+            } ]
+          },
+          "url" : {
+            "anyOf" : [ {
+              "type" : "null"
+            }, {
+              "type" : "string"
+            } ]
+          },
+          "plotShort" : {
+            "anyOf" : [ {
+              "type" : "object",
+              "properties" : {
+                "plainText" : {
+                  "type" : "string"
+                },
+                "html" : {
+                  "type" : "string"
+                }
+              },
+              "required" : [ "plainText", "html" ]
+            }, {
+              "type" : "null"
+            } ]
+          },
+          "plotFull" : {
+            "anyOf" : [ {
+              "type" : "object",
+              "properties" : {
+                "plainText" : {
+                  "type" : "string"
+                },
+                "html" : {
+                  "type" : "string"
+                }
+              },
+              "required" : [ "plainText", "html" ]
+            }, {
+              "type" : "null"
+            } ]
+          },
+          "errorMessage" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "imDbId", "title", "fullTitle", "type", "year", "language", "titleInLanguage", "url", "plotShort", "plotFull", "errorMessage" ]
+      }, {
+        "type" : "null"
+      } ]
+    },
+    "posters" : {
+      "anyOf" : [ {
+        "type" : "null"
+      }, {
+        "type" : "object",
+        "properties" : {
+          "imDbId" : {
+            "type" : "string"
+          },
+          "title" : {
+            "anyOf" : [ {
+              "type" : "string"
+            }, {
+              "type" : "null"
+            } ]
+          },
+          "fullTitle" : {
+            "anyOf" : [ {
+              "type" : "null"
+            }, {
+              "type" : "string"
+            } ]
+          },
+          "type" : {
+            "anyOf" : [ {
+              "type" : "null"
+            }, {
+              "const" : "Movie"
+            } ]
+          },
+          "year" : {
+            "anyOf" : [ {
+              "type" : "string"
+            }, {
+              "type" : "null"
+            } ]
+          },
+          "posters" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object",
+              "properties" : {
+                "id" : {
+                  "type" : "string"
+                },
+                "link" : {
+                  "type" : "string"
+                },
+                "aspectRatio" : {
+                  "type" : "number"
+                },
+                "language" : {
+                  "type" : "string"
+                },
+                "width" : {
+                  "type" : "integer"
+                },
+                "height" : {
+                  "type" : "integer"
+                }
+              },
+              "required" : [ "id", "link", "aspectRatio", "language", "width", "height" ]
+            }
+          },
+          "backdrops" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object",
+              "properties" : {
+                "id" : {
+                  "type" : "string"
+                },
+                "link" : {
+                  "type" : "string"
+                },
+                "aspectRatio" : {
+                  "type" : "number"
+                },
+                "language" : {
+                  "type" : "string"
+                },
+                "width" : {
+                  "type" : "integer"
+                },
+                "height" : {
+                  "type" : "integer"
+                }
+              },
+              "required" : [ "id", "link", "aspectRatio", "language", "width", "height" ]
+            }
+          },
+          "errorMessage" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "imDbId", "title", "fullTitle", "type", "year", "posters", "backdrops", "errorMessage" ]
+      } ]
+    },
+    "images" : {
+      "anyOf" : [ {
+        "type" : "object",
+        "properties" : {
+          "imDbId" : {
+            "type" : "string"
+          },
+          "title" : {
+            "anyOf" : [ {
+              "type" : "null"
+            }, {
+              "type" : "string"
+            } ]
+          },
+          "fullTitle" : {
+            "anyOf" : [ {
+              "type" : "string"
+            }, {
+              "type" : "null"
+            } ]
+          },
+          "type" : {
+            "anyOf" : [ {
+              "type" : "null"
+            }, {
+              "const" : "Movie"
+            } ]
+          },
+          "year" : {
+            "anyOf" : [ {
+              "type" : "null"
+            }, {
+              "type" : "string"
+            } ]
+          },
+          "items" : {
+            "anyOf" : [ {
+              "type" : "array",
+              "items" : {
+                "type" : "object",
+                "properties" : {
+                  "title" : {
+                    "type" : "string"
+                  },
+                  "image" : {
+                    "type" : "string"
+                  }
+                },
+                "required" : [ "title", "image" ]
+              }
+            }, {
+              "type" : "null"
+            } ]
+          },
+          "errorMessage" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "imDbId", "title", "fullTitle", "type", "year", "items", "errorMessage" ]
+      }, {
+        "type" : "null"
+      } ]
+    },
+    "trailer" : {
+      "anyOf" : [ {
+        "type" : "null"
+      }, {
+        "type" : "object",
+        "properties" : {
+          "imDbId" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "fullTitle" : {
+            "type" : "string"
+          },
+          "type" : {
+            "const" : "Movie"
+          },
+          "year" : {
+            "type" : "string"
+          },
+          "videoId" : {
+            "anyOf" : [ {
+              "type" : "string"
+            }, {
+              "type" : "null"
+            } ]
+          },
+          "videoTitle" : {
+            "anyOf" : [ {
+              "type" : "null"
+            }, {
+              "type" : "string"
+            } ]
+          },
+          "videoDescription" : {
+            "anyOf" : [ {
+              "type" : "null"
+            }, {
+              "type" : "string"
+            } ]
+          },
+          "thumbnailUrl" : {
+            "anyOf" : [ {
+              "type" : "string"
+            }, {
+              "type" : "null"
+            } ]
+          },
+          "uploadDate" : {
+            "anyOf" : [ {
+              "type" : "string"
+            }, {
+              "type" : "null"
+            } ]
+          },
+          "link" : {
+            "anyOf" : [ {
+              "type" : "string"
+            }, {
+              "type" : "null"
+            } ]
+          },
+          "linkEmbed" : {
+            "anyOf" : [ {
+              "type" : "string"
+            }, {
+              "type" : "null"
+            } ]
+          },
+          "errorMessage" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "imDbId", "title", "fullTitle", "type", "year", "videoId", "videoTitle", "videoDescription", "thumbnailUrl", "uploadDate", "link", "linkEmbed", "errorMessage" ]
+      } ]
+    },
+    "boxOffice" : {
+      "anyOf" : [ {
+        "type" : "null"
+      }, {
+        "type" : "object",
+        "properties" : {
+          "budget" : {
+            "type" : "string"
+          },
+          "openingWeekendUSA" : {
+            "type" : "string"
+          },
+          "grossUSA" : {
+            "type" : "string"
+          },
+          "cumulativeWorldwideGross" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "budget", "openingWeekendUSA", "grossUSA", "cumulativeWorldwideGross" ]
+      } ]
+    },
+    "tagline" : {
+      "type" : "null"
+    },
+    "keywords" : {
+      "anyOf" : [ {
+        "type" : "string"
+      }, {
+        "type" : "null"
+      } ]
+    },
+    "keywordList" : {
+      "anyOf" : [ {
+        "type" : "array",
+        "items" : {
+          "type" : "string"
+        },
+        "uniqueItems" : true
+      }, {
+        "type" : "null"
+      } ]
+    },
+    "similars" : {
+      "anyOf" : [ {
+        "type" : "array",
+        "items" : {
+          "type" : "object",
+          "properties" : {
+            "id" : {
+              "type" : "string"
+            },
+            "title" : {
+              "type" : "string"
+            },
+            "image" : {
+              "type" : "string"
+            },
+            "imDbRating" : {
+              "type" : "string"
+            }
+          },
+          "required" : [ "id", "title", "image", "imDbRating" ]
+        },
+        "uniqueItems" : true
+      }, {
+        "type" : "null"
+      } ]
+    },
+    "tvSeriesInfo" : {
+      "type" : "null"
+    },
+    "tvEpisodeInfo" : {
+      "type" : "null"
+    },
+    "errorMessage" : {
+      "type" : "string"
+    }
+  },
+  "required" : [ "id", "title", "originalTitle", "fullTitle", "type", "year", "image", "releaseDate", "runtimeMins", "runtimeStr", "plot", "plotLocal", "plotLocalIsRtl", "awards", "directors", "directorList", "writers", "writerList", "stars", "starList", "actorList", "fullCast", "genres", "genreList", "companies", "companyList", "countries", "countryList", "languages", "languageList", "contentRating", "imDbRating", "imDbRatingVotes", "metacriticRating", "ratings", "wikipedia", "posters", "images", "trailer", "boxOffice", "tagline", "keywords", "keywordList", "similars", "tvSeriesInfo", "tvEpisodeInfo", "errorMessage" ]
+}

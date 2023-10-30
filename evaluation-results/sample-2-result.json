@@ -1,0 +1,142 @@
+{
+  "$schema" : "https://json-schema.org/draft/2020-12/schema#",
+  "type" : "object",
+  "properties" : {
+    "type" : {
+      "const" : "Feature"
+    },
+    "properties" : {
+      "type" : "object",
+      "properties" : {
+        "mag" : {
+          "type" : "number"
+        },
+        "place" : {
+          "type" : "string"
+        },
+        "time" : {
+          "type" : "integer"
+        },
+        "updated" : {
+          "type" : "integer"
+        },
+        "tz" : {
+          "type" : "null"
+        },
+        "url" : {
+          "type" : "string"
+        },
+        "detail" : {
+          "type" : "string"
+        },
+        "felt" : {
+          "anyOf" : [ {
+            "type" : "null"
+          }, {
+            "type" : "integer"
+          } ]
+        },
+        "cdi" : {
+          "anyOf" : [ {
+            "type" : "null"
+          }, {
+            "type" : "number"
+          } ]
+        },
+        "mmi" : {
+          "anyOf" : [ {
+            "type" : "number"
+          }, {
+            "type" : "null"
+          } ]
+        },
+        "alert" : {
+          "anyOf" : [ {
+            "type" : "null"
+          }, {
+            "enum" : [ "green", "yellow", "orange" ]
+          } ]
+        },
+        "status" : {
+          "enum" : [ "automatic", "reviewed" ]
+        },
+        "tsunami" : {
+          "enum" : [ 0, 1 ]
+        },
+        "sig" : {
+          "type" : "integer"
+        },
+        "net" : {
+          "type" : "string"
+        },
+        "code" : {
+          "type" : "string"
+        },
+        "ids" : {
+          "type" : "string"
+        },
+        "sources" : {
+          "type" : "string"
+        },
+        "types" : {
+          "type" : "string"
+        },
+        "nst" : {
+          "anyOf" : [ {
+            "type" : "integer"
+          }, {
+            "type" : "null"
+          } ]
+        },
+        "dmin" : {
+          "anyOf" : [ {
+            "type" : "number"
+          }, {
+            "type" : "null"
+          } ]
+        },
+        "rms" : {
+          "type" : "number"
+        },
+        "gap" : {
+          "anyOf" : [ {
+            "type" : "number"
+          }, {
+            "type" : "null"
+          } ]
+        },
+        "magType" : {
+          "type" : "string"
+        },
+        "type" : {
+          "enum" : [ "earthquake", "quarry blast", "explosion", "ice quake", "other event" ]
+        },
+        "title" : {
+          "type" : "string"
+        }
+      },
+      "required" : [ "mag", "place", "time", "updated", "tz", "url", "detail", "felt", "cdi", "mmi", "alert", "status", "tsunami", "sig", "net", "code", "ids", "sources", "types", "nst", "dmin", "rms", "gap", "magType", "type", "title" ]
+    },
+    "geometry" : {
+      "type" : "object",
+      "properties" : {
+        "type" : {
+          "const" : "Point"
+        },
+        "coordinates" : {
+          "type" : "array",
+          "items" : {
+            "type" : "number"
+          },
+          "minItems" : 3,
+          "maxItems" : 3
+        }
+      },
+      "required" : [ "type", "coordinates" ]
+    },
+    "id" : {
+      "type" : "string"
+    }
+  },
+  "required" : [ "type", "properties", "geometry", "id" ]
+}

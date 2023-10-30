@@ -1,0 +1,375 @@
+{
+  "$schema" : "https://json-schema.org/draft/2020-12/schema#",
+  "type" : "object",
+  "properties" : {
+    "carvers" : {
+      "type" : "object",
+      "properties" : {
+        "air" : {
+          "anyOf" : [ {
+            "type" : "string"
+          }, {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            },
+            "uniqueItems" : true
+          } ]
+        }
+      }
+    },
+    "downfall" : {
+      "type" : "number"
+    },
+    "effects" : {
+      "type" : "object",
+      "properties" : {
+        "fog_color" : {
+          "type" : "integer",
+          "default" : 12638463
+        },
+        "foliage_color" : {
+          "type" : "integer"
+        },
+        "grass_color" : {
+          "type" : "integer"
+        },
+        "mood_sound" : {
+          "type" : "object",
+          "properties" : {
+            "block_search_extent" : {
+              "type" : "integer"
+            },
+            "offset" : {
+              "type" : "number"
+            },
+            "sound" : {
+              "type" : "string",
+              "default" : "minecraft:ambient.cave"
+            },
+            "tick_delay" : {
+              "type" : "integer"
+            }
+          },
+          "required" : [ "block_search_extent", "offset", "sound", "tick_delay" ]
+        },
+        "music" : {
+          "type" : "object",
+          "properties" : {
+            "max_delay" : {
+              "type" : "integer"
+            },
+            "min_delay" : {
+              "type" : "integer"
+            },
+            "replace_current_music" : {
+              "type" : "boolean"
+            },
+            "sound" : {
+              "type" : "string"
+            }
+          },
+          "required" : [ "max_delay", "min_delay", "replace_current_music", "sound" ]
+        },
+        "sky_color" : {
+          "type" : "integer"
+        },
+        "water_color" : {
+          "type" : "integer"
+        },
+        "water_fog_color" : {
+          "type" : "integer",
+          "default" : 329011
+        },
+        "additions_sound" : {
+          "type" : "object",
+          "properties" : {
+            "sound" : {
+              "type" : "string"
+            },
+            "tick_chance" : {
+              "type" : "number"
+            }
+          },
+          "required" : [ "sound", "tick_chance" ]
+        },
+        "ambient_sound" : {
+          "type" : "string"
+        },
+        "particle" : {
+          "type" : "object",
+          "properties" : {
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "type" : {
+                  "type" : "string"
+                }
+              },
+              "required" : [ "type" ]
+            },
+            "probability" : {
+              "type" : "number",
+              "minimum" : 0.0,
+              "maximum" : 1.0
+            }
+          },
+          "required" : [ "options", "probability" ]
+        },
+        "grass_color_modifier" : {
+          "type" : "string"
+        }
+      },
+      "required" : [ "fog_color", "mood_sound", "sky_color", "water_color", "water_fog_color" ]
+    },
+    "features" : {
+      "type" : "array",
+      "items" : {
+        "type" : "array",
+        "items" : {
+          "type" : "string"
+        },
+        "uniqueItems" : true
+      }
+    },
+    "has_precipitation" : {
+      "type" : "boolean"
+    },
+    "spawn_costs" : {
+      "type" : "object",
+      "properties" : {
+        "minecraft:enderman" : {
+          "type" : "object",
+          "properties" : {
+            "charge" : {
+              "type" : "number"
+            },
+            "energy_budget" : {
+              "type" : "number"
+            }
+          },
+          "required" : [ "charge", "energy_budget" ]
+        },
+        "minecraft:ghast" : {
+          "type" : "object",
+          "properties" : {
+            "charge" : {
+              "type" : "number"
+            },
+            "energy_budget" : {
+              "type" : "number"
+            }
+          },
+          "required" : [ "charge", "energy_budget" ]
+        },
+        "minecraft:skeleton" : {
+          "type" : "object",
+          "properties" : {
+            "charge" : {
+              "type" : "number"
+            },
+            "energy_budget" : {
+              "type" : "number"
+            }
+          },
+          "required" : [ "charge", "energy_budget" ]
+        },
+        "minecraft:strider" : {
+          "type" : "object",
+          "properties" : {
+            "charge" : {
+              "type" : "number"
+            },
+            "energy_budget" : {
+              "type" : "number"
+            }
+          },
+          "required" : [ "charge", "energy_budget" ]
+        }
+      }
+    },
+    "spawners" : {
+      "type" : "object",
+      "properties" : {
+        "ambient" : {
+          "type" : "array",
+          "items" : {
+            "type" : "object",
+            "properties" : {
+              "type" : {
+                "type" : "string"
+              },
+              "maxCount" : {
+                "type" : "integer"
+              },
+              "minCount" : {
+                "type" : "integer",
+                "minimum" : 1
+              },
+              "weight" : {
+                "type" : "integer"
+              }
+            },
+            "required" : [ "type", "maxCount", "minCount", "weight" ]
+          },
+          "uniqueItems" : true
+        },
+        "axolotls" : {
+          "type" : "array",
+          "items" : {
+            "type" : "object",
+            "properties" : {
+              "type" : {
+                "type" : "string"
+              },
+              "maxCount" : {
+                "type" : "integer"
+              },
+              "minCount" : {
+                "type" : "integer",
+                "minimum" : 1
+              },
+              "weight" : {
+                "type" : "integer"
+              }
+            },
+            "required" : [ "type", "maxCount", "minCount", "weight" ]
+          },
+          "uniqueItems" : true
+        },
+        "creature" : {
+          "type" : "array",
+          "items" : {
+            "type" : "object",
+            "properties" : {
+              "type" : {
+                "type" : "string"
+              },
+              "maxCount" : {
+                "type" : "integer"
+              },
+              "minCount" : {
+                "type" : "integer",
+                "minimum" : 1
+              },
+              "weight" : {
+                "type" : "integer"
+              }
+            },
+            "required" : [ "type", "maxCount", "minCount", "weight" ]
+          }
+        },
+        "misc" : {
+          "type" : "array",
+          "uniqueItems" : true
+        },
+        "monster" : {
+          "type" : "array",
+          "items" : {
+            "type" : "object",
+            "properties" : {
+              "type" : {
+                "type" : "string"
+              },
+              "maxCount" : {
+                "type" : "integer"
+              },
+              "minCount" : {
+                "type" : "integer"
+              },
+              "weight" : {
+                "type" : "integer"
+              }
+            },
+            "required" : [ "type", "maxCount", "minCount", "weight" ]
+          },
+          "uniqueItems" : true
+        },
+        "underground_water_creature" : {
+          "type" : "array",
+          "items" : {
+            "type" : "object",
+            "properties" : {
+              "type" : {
+                "type" : "string"
+              },
+              "maxCount" : {
+                "type" : "integer"
+              },
+              "minCount" : {
+                "type" : "integer",
+                "minimum" : 1
+              },
+              "weight" : {
+                "type" : "integer"
+              }
+            },
+            "required" : [ "type", "maxCount", "minCount", "weight" ]
+          },
+          "uniqueItems" : true
+        },
+        "water_ambient" : {
+          "type" : "array",
+          "items" : {
+            "type" : "object",
+            "properties" : {
+              "type" : {
+                "type" : "string"
+              },
+              "maxCount" : {
+                "type" : "integer"
+              },
+              "minCount" : {
+                "type" : "integer",
+                "minimum" : 1
+              },
+              "weight" : {
+                "type" : "integer"
+              }
+            },
+            "required" : [ "type", "maxCount", "minCount", "weight" ]
+          },
+          "uniqueItems" : true
+        },
+        "water_creature" : {
+          "type" : "array",
+          "items" : {
+            "type" : "object",
+            "properties" : {
+              "type" : {
+                "type" : "string"
+              },
+              "maxCount" : {
+                "type" : "integer",
+                "minimum" : 1
+              },
+              "minCount" : {
+                "type" : "integer",
+                "minimum" : 1
+              },
+              "weight" : {
+                "type" : "integer"
+              }
+            },
+            "required" : [ "type", "maxCount", "minCount", "weight" ]
+          },
+          "uniqueItems" : true
+        }
+      },
+      "required" : [ "ambient", "axolotls", "creature", "misc", "monster", "underground_water_creature", "water_ambient", "water_creature" ]
+    },
+    "temperature" : {
+      "type" : "number"
+    },
+    "temperature_modifier" : {
+      "type" : "string",
+      "minLength" : 6
+    },
+    "creature_spawn_probability" : {
+      "type" : "number",
+      "minimum" : 0.0,
+      "exclusiveMaximum" : 1.0
+    }
+  },
+  "required" : [ "carvers", "downfall", "effects", "features", "has_precipitation", "spawn_costs", "spawners", "temperature" ]
+}
