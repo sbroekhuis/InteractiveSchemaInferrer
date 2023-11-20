@@ -1,12 +1,12 @@
 # Interactive Schema Inferrer
 
-This WIP tool is a java library addon for the `saasquatch:json-schema-inferrer` inference tool.
-It adds features that asks the user for clarification.
+A JSON Schema inferrer that asks the user for clarifications.
 
 # About
 
-This project is a master thesis from the University of Twente.
+This project is made during a master thesis from the University of Twente.
 
-# ToDo
-- Implement a Test Framework (Perhaps TestFX)
-- Logging System
+This tool uses the `saasquatch:json-schema-inferrer` library to infer inference a JSON Schema.
+Its main feature is the ability to ask the user for clarifications regarding the sample data.
+
+The GUI is build in tornadofx.
